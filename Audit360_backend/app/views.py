@@ -5,6 +5,7 @@ from rest_framework.generics import ListAPIView,RetrieveUpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import AllowAny
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
@@ -27,10 +28,12 @@ import base64
 
 #
 class UsuarioDetalleAPIView(RetrieveUpdateAPIView):
+    permission_classes = [AllowAny]
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
 class DashboardResumenView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         resumen = AuditAuxTxLog.objects.values('audit_type').annotate(total=Count('id_audit_aux_tx_log'))
         rollback = AuditAuxTxLog.objects.filter(rollbacked=True).count()
@@ -65,6 +68,8 @@ class DashboardResumenView(APIView):
         return Response(resultado)
 
 class DashboardTablaView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         filtro_tabla = request.query_params.get('tabla')
         filtro_operacion = request.query_params.get('operacion')
@@ -114,6 +119,8 @@ def map_operacion(code):
     }.get(code, 'Otro')
 
 class TablaAuditadaListView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         tablas = TablaAuditada.objects.all()
 
@@ -139,6 +146,7 @@ class TablaAuditadaListView(APIView):
 
 
 class HistorialViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AllowAny]
     """
     ViewSet para listar el historial de auditoría.
     Solo permite lectura (GET).
@@ -158,6 +166,7 @@ class HistorialViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['created_on']
 
 class ActividadPorPeriodoView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         agrupado_por = request.GET.get('agrupar', 'dia')  # opciones: dia, semana, mes
         fecha_inicio = request.GET.get('fecha_inicio')
@@ -212,6 +221,7 @@ TIPO_ANALISIS_PROMPT = {
     )
 }
 class DatosInformeAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         tabla = request.data.get('tabla')
         fecha_inicio = request.data.get('fecha_inicio')
@@ -246,6 +256,7 @@ class DatosInformeAPIView(APIView):
         return Response(datos)
     
 class DatosInformeAPIView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         tabla = request.data.get('tabla')
         fecha_inicio = request.data.get('fecha_inicio')
@@ -281,6 +292,8 @@ class DatosInformeAPIView(APIView):
         return Response(resultado)
 
 class GuardarInformeAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         data = request.data
         try:
@@ -296,6 +309,8 @@ class GuardarInformeAPIView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class GenerarInformeIaAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = InformeRequestSerializer(data=request.data)
         if not serializer.is_valid():
@@ -360,6 +375,8 @@ class GenerarInformeIaAPIView(APIView):
 
 
 class InformePDFAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, pk):
         try:
             informe = InformeAuditoria.objects.get(pk=pk)
@@ -379,6 +396,8 @@ class InformePDFAPIView(APIView):
 
 
 class InformeRecienteAPIView(ListAPIView):
+    permission_classes = [AllowAny]
+
     queryset = InformeAuditoria.objects.order_by('-fecha_generacion')[:10]
     serializer_class = InformeSerializer
 

@@ -6,10 +6,6 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/dashboard.page').then(m => m.DashboardPage),
   },
   {
-    path: 'tablas',
-    loadComponent: () => import('./tablas/tablas.page').then(m => m.TablasPage),
-  },
-  {
     path: 'historial',
     loadComponent: () => import('./historial/historial.page').then(m => m.HistorialPage),
   },

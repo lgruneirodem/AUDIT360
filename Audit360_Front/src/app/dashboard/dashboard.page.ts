@@ -1,20 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, NgModule } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { DashboardService } from '../services/dashboard.service';
 import { Router } from '@angular/router';
+import { TablaConfiguracionComponent } from '../componentes/tabla-configuracion/tabla-configuracion.component';
+import { TablaLogsComponent } from '../componentes/tabla-logs/tabla-logs.component';
 
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: 'dashboard.page.html',
   styleUrls: ['dashboard.page.scss'],
-  imports: [ IonicModule,CommonModule],
+  imports: [ IonicModule,CommonModule, FormsModule ,TablaConfiguracionComponent,TablaLogsComponent],
 })
 export class DashboardPage implements OnInit {
   
   private baseUrl = 'http://localhost:8000/app';
   summary: { label: string, count: number }[] = [];
+  
+  
+  tablaSeleccionada = 'gestion'; 
+  
   
   filtroOperacion: string = '';
   filtroTabla: string = '';

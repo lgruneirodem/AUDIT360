@@ -41,20 +41,43 @@
       </ion-grid>
     </div>
 
+    <ion-segment [(ngModel)]="tablaSeleccionada" color="primary">
+      <ion-segment-button value="gestion">
+        <ion-label>Gestión de auditoría</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="sospechosa">
+        <ion-label>Log y Monitorización</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <div [ngSwitch]="tablaSeleccionada">
+      
+      <ng-container *ngSwitchCase="'gestion'">
+        <app-tabla-configuracion [tabla]="tablaSeleccionada"></app-tabla-configuracion>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'logs'">
+        <app-tabla-logs [tabla]="tablaSeleccionada"></app-tabla-logs>
+      </ng-container>
+    </div>
     <!-- Tabla -->
     <div class="table-box">
       <ion-grid>
         <ion-row>
-          <ion-col><strong>Table Name</strong></ion-col>
-          <ion-col><strong># of Rows</strong></ion-col>
-          <ion-col><strong>Audited</strong></ion-col>
-          <ion-col><strong>Last Operation</strong></ion-col>
+          <ion-col><strong>Tabla </strong></ion-col>
+          <ion-col><strong>Registros</strong></ion-col>
+          <ion-col><strong>Estados Auditoría</strong></ion-col>
+          <ion-col><strong>Última operación</strong></ion-col>
+          <ion-col><strong>Alertas</strong></ion-col>
+          <ion-col><strong>Acciones</strong></ion-col>
         </ion-row>
 
         <ion-row *ngFor="let table of tablaFiltrada">
           <ion-col>{{ table.name }}</ion-col>
           <ion-col>{{ table.rows }}</ion-col>
           <ion-col><span [ngClass]="getAuditIcon(table.audited)" class="audit-icon">{{ getAuditIcon(table.audited) }}</span></ion-col>
+          <ion-col>{{ table.lastOp }}</ion-col>
+          <ion-col>{{ table.lastOp }}</ion-col>
           <ion-col>{{ table.lastOp }}</ion-col>
         </ion-row>
 
