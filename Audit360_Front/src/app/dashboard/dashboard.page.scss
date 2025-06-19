@@ -1,0 +1,107 @@
+::host {
+  --ion-padding: 1rem;
+  background: #F4F4F4;
+}
+.container {
+  padding: 1rem;
+  margin-top: 90px;
+}
+.alert-custom {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ffeeba;
+  
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.btn-alerta{
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.audit-card {
+  background-color: #f8edd0;
+  padding: 1.2rem;
+  border-radius: 12px;
+  min-width: 160px;
+  text-align: center;
+  flex-grow: 1;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.audit-card:hover {
+  transform: scale(1.02);
+}
+
+.audit-card .count {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1c1c1c;
+}
+
+.audit-card .label {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 0.25rem;
+}
+
+.filter-box {
+  background:#F4F4F4;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.filter-box h6 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+ion-select, ion-input {
+  width: 100%;
+}
+
+ion-button {
+  
+  --border-radius: 8px;
+  font-weight: 500;
+}
+
+.table-box {
+  background: #F4F4F4;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+ion-grid ion-row {
+  font-weight: 500;
+  padding: 0.75rem;
+}
+
+ion-col {
+  padding: 0.5rem;
+}
+
+.audit-icon {
+  font-weight: bold;
+  font-size: 1.2rem;
+};
+  

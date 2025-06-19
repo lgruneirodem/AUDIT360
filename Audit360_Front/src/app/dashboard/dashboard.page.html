@@ -1,0 +1,68 @@
+
+<ion-content>
+  <div class="container ion-padding">
+    <!-- Alerta de actividad -->
+    <div class="alert-custom">
+      <span>⚠️ Alerta: Se detectaron más de 250 operaciones recientes. Revisa la actividad.</span>
+      <ion-button class="btn-alerta"fill="clear" size="small"  >✕</ion-button>
+    </div>
+
+    <!-- Tarjetas resumen -->
+    <div class="cards-container">
+      <div *ngFor="let item of summary" class="audit-card" (click)="irAHistorial(item.label)">
+        <div class="count">{{ item.count }}</div>
+        <div class="label">{{ item.label }}</div>
+      </div>
+    </div>
+
+    <!-- Caja de filtros -->
+    <div class="filter-box">
+      <h6>🔎 Filtros</h6>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-label>Tipo de operación</ion-label>
+            <ion-select  placeholder="Todas">
+              <ion-select-option value="">Todas</ion-select-option>
+              <ion-select-option value="Insert">Insert</ion-select-option>
+              <ion-select-option value="Update">Update</ion-select-option>
+              <ion-select-option value="Delete">Delete</ion-select-option>
+              <ion-select-option value="Rollback">Rollback</ion-select-option>
+            </ion-select>
+          </ion-col>
+          <ion-col size="12" size-md="4">
+            <ion-label>Nombre de tabla</ion-label>
+            <ion-input placeholder="ej: users"></ion-input>
+          </ion-col>
+          <ion-col size="12" size-md="4" class="ion-align-self-end">
+            <ion-button expand="block" (click)="aplicarFiltros()">Aplicar filtros</ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-box">
+      <ion-grid>
+        <ion-row>
+          <ion-col><strong>Table Name</strong></ion-col>
+          <ion-col><strong># of Rows</strong></ion-col>
+          <ion-col><strong>Audited</strong></ion-col>
+          <ion-col><strong>Last Operation</strong></ion-col>
+        </ion-row>
+
+        <ion-row *ngFor="let table of tablaFiltrada">
+          <ion-col>{{ table.name }}</ion-col>
+          <ion-col>{{ table.rows }}</ion-col>
+          <ion-col><span [ngClass]="getAuditIcon(table.audited)" class="audit-icon">{{ getAuditIcon(table.audited) }}</span></ion-col>
+          <ion-col>{{ table.lastOp }}</ion-col>
+        </ion-row>
+
+        <ion-row *ngIf="tablaFiltrada.length === 0">
+          <ion-col size="12" class="ion-text-center text-muted">No hay resultados</ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+  </div>
+</ion-content>

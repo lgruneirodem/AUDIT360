@@ -1,0 +1,153 @@
+::host {
+  --ion-padding: 1rem;
+  background: #F4F4F4;
+  margin-top: 100px;
+}
+.container {
+  padding: 1rem;
+  margin-top: 100px;
+}
+ion-card {
+  background:#F4F4F4;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+ion-card ion-item {
+  --background: #F4F4F4;
+  --box-shadow: none;
+  --ion-item-background: transparent;
+  border-radius: 6px;
+}
+
+ion-col.main-panel {
+  padding-left: 32px; // Aumenta el espacio entre el menú y el contenido
+  border-left: 1px solid #e0e0e0;
+  
+}
+
+//ESTILOS SIDEBAR
+.sidebar ion-list {
+  background-color: white;
+  padding: 0;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+/* Estilos para cada ítem del menú */
+.sidebar ion-item {
+  --background: transparent;
+  --color: #666;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 36px;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+/* Estilo para el ítem activo */
+.sidebar ion-item.active {
+  --color: var(--ion-color-primary);
+  font-weight: 500;
+  --background: transparent;
+}
+
+/* Estilo específico para Delete Account */
+.delete-account {
+  --color: var(--ion-color-danger) !important;
+  margin-top: 10px;
+}
+
+/* Eliminar líneas divisorias */
+.sidebar ion-list {
+  --ion-item-border-color: transparent;
+}
+
+.vertical-divider {
+  width: 1px;
+  background-color: #ccc;
+  /* Alternativa con degradado */
+  /* background: linear-gradient(to bottom, transparent, #ccc, transparent); */
+}
+
+
+//ESTILOS PARA EL PERFIL 
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px; // Acerca la imagen al nombre
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0; // Elimina márgenes extra
+}
+
+.sidebar ion-item {
+  --background: transparent;
+  --color: #333;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.sidebar ion-item.active {
+  background: #ececec;
+  font-weight: bold;
+}
+
+.profile-section h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.profile-card, .info-card {
+  background:#F4F4F4;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  position: relative;  
+  width: 100%;
+  
+}
+.profile-header ion-button{
+  position: absolute;
+  top: 0;
+  right: 0;
+  --color: var(--ion-color-primary);
+  font-size: 14px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 16px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}

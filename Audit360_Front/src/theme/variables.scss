@@ -1,0 +1,32 @@
+// For information on how to create your own theme, please see:
+
+// http://ionicframework.com/docs/theming/
+@font-face {
+  font-family: 'Nunito';
+  src: url('../assets/fonts/NunitoSans-regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+:root {
+    // fuente utilizada
+    --ion-font-family:'Nunito',sans-serif;
+    --ion-font-size: 16px; 
+    /* Colores personalizados */
+    --ion-color-primary: #3CA6A6;
+    --ion-color-secondary: #012E40;
+    --color-accent: #F2E3D5;
+    --color-text-dark: #012E40;
+    --color-text-light: #ffffff;
+    --color-warning: #fff3cd;
+    --ion-color-danger: #e63946;
+    --ion-toolbar-background: #3CA6A6 !important;
+    --ion-color-menu: #3CA6A6;
+    --ion-color-title: #00FF00; /* Verde brillante para el título */
+    
+  }
+
+  @media screen and (min-width: 768px) {
+    :root {
+      --ion-font-size: 18px; // más grande para pantallas grandes (web)
+    }
+  }

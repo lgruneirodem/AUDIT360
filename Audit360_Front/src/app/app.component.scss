@@ -1,0 +1,171 @@
+ion-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.content-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+ion-router-outlet {
+  padding-top: 80px; /* Debe ser igual a la altura del header */
+}
+
+/* O alternativamente */
+#main-content ion-content {
+  --padding-top: 80px; /* Para Ionic se usa la variable CSS */
+}
+
+ion-menu {
+  --width: 250px;
+  border-radius: 40px;
+  margin-left: 10px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  
+  }
+  
+  /* Estilos específicos para la barra de herramientas */
+  ion-header.audit-header {
+    height: 80px;
+    position: fixed; /* Cambiar de fixed a relative */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    --background: transparent;
+    background: transparent !important;
+    box-shadow: none;
+    
+  }
+  
+  ion-toolbar {
+    --background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    
+  }
+  
+  /* Contenedor con estilo tipo tarjeta */
+  .header-card {
+    background-color: #3CA6A6;
+    color: white;
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 10px 24px;
+    margin: 20px;
+    margin-left: 290px; /* Este es el truco: deja espacio del menú */
+    max-width: calc(100% - 270px); /* Evita que se desborde a la derecha */
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  /* Botón de título */
+  .audit-title {
+    font-size: 24px !important;
+    font-weight: bold;
+    color: white !important;
+    text-transform: none;
+  }
+  /* Estilos para el contenido del menú */
+  .custom-menu::part(background) {
+    background-color: #3CA6A6 ;
+  }
+  ion-split-pane {
+    width: 100%;
+    height: 100%;
+    --side-width: 250px;
+    --side-max-width: 250px;
+  }
+
+  /* Contenedor principal con flexbox para layout de menú estático */
+.main-container {
+  display: flex;
+  height: calc(100% - 56px); /* Resta la altura del header */
+  width: 100%;
+  position: relative;
+}
+
+/* Menú lateral estático */
+
+
+/* Contenido principal que ocupa el resto del espacio */
+.main-content {
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+}
+
+/* Mantener el color de fondo del menú */
+.custom-menu {
+  --background: #3CA6A6;
+  height: 100%;
+}
+
+/* Estilos para la sección de perfil */
+.profile-section {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  margin-bottom: 15px;
+  margin-top: 30px;
+}
+
+.profile-section ion-avatar {
+  margin: 0 auto;
+  width: 80px;
+  height: 80px;
+}
+
+.profile-section h3 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: white;
+}
+
+.profile-section p {
+  margin: 0;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+}
+
+/* Personaliza los elementos del menú */
+.custom-menu ion-item {
+  --background: transparent;
+  --color: white;
+  --border-color: rgba(255,255,255,0.1);
+  --padding-start: 20px;
+  margin-bottom: 5px;
+}
+
+.custom-menu ion-item ion-icon {
+  color: white;
+}
+
+/* Estilo para el elemento activo */
+.custom-menu ion-item.activated,
+.custom-menu ion-item.item-active {
+  --background: rgba(255,255,255,0.1);
+}
+
+/* Estilo para ion-list del menú para eliminar color de fondo */
+.custom-menu ion-list {
+  background: transparent;
+}
+
+/* Media queries para hacer el diseño responsivo */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    max-height: 250px;
+  }
+}

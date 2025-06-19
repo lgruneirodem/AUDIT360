@@ -1,0 +1,176 @@
+<ion-content class=" container ion-padding">
+  <ion-grid>
+    <!-- Panel de generación de informes -->
+    <ion-row>
+      <ion-col size="12">
+        <ion-card class="generar">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="bar-chart-outline"></ion-icon>
+              Generar Informe Inteligente
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-grid>
+              <ion-row class="filtros_generar">
+                <ion-col size="12" size-md="6" size-lg="3">
+                  <ion-item>
+                    <ion-label position="stacked">Nombre de tabla</ion-label> 
+                    <ion-select placeholder="Seleccionar tabla" class="custom-select" interface="popover" [(ngModel)]="tabla">
+                      <ion-select-option value="animador">Animador</ion-select-option>
+                      <ion-select-option value="cadena">Cadena</ion-select-option>
+                      <ion-select-option value="hotel">Hotel</ion-select-option>
+                      <ion-select-option value="municipio">Municipio</ion-select-option>
+                      <ion-select-option value="pais">País</ion-select-option>
+                      <ion-select-option value="pia">Programa Pia</ion-select-option>
+                      <ion-select-option value="programa">Programa</ion-select-option>
+                      <ion-select-option value="provincia">Provincia</ion-select-option>
+                      <ion-select-option value="tarea">Tarea</ion-select-option>
+                      <ion-select-option value="zona">Zona</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6" size-lg="3">
+                  <ion-item class="calendario">
+                    <ion-label position="stacked">Fecha inicial</ion-label>
+                    <input type="date" [(ngModel)]="fechaInicio" class="custom-date-input" />
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6" size-lg="3">
+                  <ion-item class="calendario">
+                    <ion-label position="stacked">Fecha final</ion-label>
+                    <input type="date" [(ngModel)]="fechaFin" class="custom-date-input" />
+                  </ion-item>
+                </ion-col>
+                <ion-col size="12" size-md="6" size-lg="3">
+                  <ion-item>
+                    <ion-label position="stacked">Tipo de análisis</ion-label>
+                    <ion-select placeholder="Seleccionar tipo" class="custom-select" interface="popover" [(ngModel)]="tipo">
+                      <ion-select-option value="detallado">Detallado</ion-select-option>
+                      <ion-select-option value="resumen">Resumen</ion-select-option>
+                      <ion-select-option value="anomalias">Enfoque en anomalías</ion-select-option>
+                      <ion-select-option value="tendencias">Tendencias</ion-select-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col class="ion-text-end">
+                  <ion-button class="generate-btn" (click)="generarInforme()">Generar informe</ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- Previsualización del informe -->
+    <ion-row>
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Informe de auditoría - Tabla: animador</ion-card-title>
+            <ion-card-subtitle>Período: {{fechaInicio | date: 'dd/MM/yyyy'}} - {{fechaFin | date: 'dd/MM/yyyy'}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="IA-container"> 
+              <h2><strong> Generado por IA</strong></h2>
+              <p class= "resumenIA" *ngIf="resumen" [innerHTML]="resumen"></p>
+              <ion-spinner *ngIf="cargando"></ion-spinner>
+              
+              <!--<h2>Gráfico de actividad</h2> -->
+              <!--<div class="chart-placeholder" *ngIf="graficoBase64">
+                <img [src]="'data:image/png;base64,' + graficoBase64" alt="Gráfico generado" />
+              </div> -->
+            </div>
+
+            <ion-grid class="ion-no-padding detalles">
+              <h2><strong>Detalles de operaciones</strong></h2>
+              <ion-row class="header-row">
+                <ion-col size="3">Fecha</ion-col>
+                <ion-col size="3">Usuario</ion-col>
+                <ion-col size="3">Operación</ion-col>
+                <ion-col size="3">Campos afectados</ion-col>
+              </ion-row>
+              <ion-row class="header-row">
+                <ion-col size="3">28/04/2025 14:23</ion-col>
+                <ion-col size="3">admin_principal</ion-col>
+                <ion-col size="3">Update</ion-col>
+                <ion-col size="3">salario, disponibilidad</ion-col>
+              </ion-row>
+              <ion-row class="header-row">
+                <ion-col size="3">25/04/2025 23:45</ion-col>
+                <ion-col size="3">lucia_rodriguez</ion-col>
+                <ion-col size="3">Update</ion-col>
+                <ion-col size="3">salario</ion-col>
+              </ion-row>
+              <ion-row class="header-row">
+                <ion-col size="3">20/04/2025 10:15</ion-col>
+                <ion-col size="3">admin_principal</ion-col>
+                <ion-col size="3">Update</ion-col>
+                <ion-col size="3">disponibilidad, categoría</ion-col>
+              </ion-row>
+              <ion-row class="header-row">
+                <ion-col size="3">15/04/2025 09:30</ion-col>
+                <ion-col size="3">carlos_tech</ion-col>
+                <ion-col size="3">Update</ion-col>
+                <ion-col size="3">categoría</ion-col>
+              </ion-row>
+            </ion-grid>
+            
+            <div class="report-actions">
+              <ion-button fill="outline" class="export-btn">Exportar PDF</ion-button>
+              <ion-button class="save-btn">Guardar</ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- Informes recientes -->
+    <ion-row>
+      <ion-col size="12">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="list-outline"></ion-icon>
+              Informes generados recientemente
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <ion-item>
+                <ion-grid>
+                  <ion-row class="header-row">
+                    <ion-col size="2">Tabla</ion-col>
+                    <ion-col size="4">Período</ion-col>
+                    <ion-col size="2">Generado por</ion-col>
+                    <ion-col size="2">Fecha</ion-col>
+                    <ion-col size="2">Acciones</ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-item>
+              <ion-item *ngFor="let informe of informes">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="2">{{ informe.tabla }}</ion-col>
+                    <ion-col size="4">{{ informe.periodo }}</ion-col>
+                    <ion-col size="2">{{ informe.generado_por }}</ion-col>
+                    <ion-col size="2">{{ informe.fecha_generacion | date: 'dd/MM/yyyy' }}</ion-col>
+                    <ion-col size="2">
+                      <ion-button class="btn-historico" size="small" fill="clear">Ver</ion-button>
+                      <ion-button class="btn-historico" size="small" fill="clear" (click)="descargar(informe.id)" >Descargar</ion-button>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+
+  </ion-grid>
+</ion-content>

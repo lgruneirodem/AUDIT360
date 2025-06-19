@@ -1,0 +1,7 @@
+{
+  "name": "Audit360_Front",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

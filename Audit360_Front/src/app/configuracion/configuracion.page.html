@@ -1,0 +1,84 @@
+<ion-content>
+  <ion-grid class="container ion-padding">
+    <ion-row>
+       <!--Sidebar -->
+       <ion-col size="12" size-md="3">
+        <div class="sidebar">
+          <div class="sidebar-container">
+            <ion-list lines="none">
+              <ion-item routerLink="/configuracion" routerDirection="root" class="active">
+                <ion-label>Mi perfil </ion-label>
+              </ion-item>
+              <ion-item routerLink="/cuenta" routerDirection="root">
+                <ion-label>Cuenta</ion-label>
+              </ion-item>
+              <ion-item routerLink="/notificaciones" routerDirection="root">
+                <ion-label>Notificaciones</ion-label>
+              </ion-item>
+              <ion-item button class="delete-account">
+                <ion-label>Eliminar cuenta </ion-label>
+              </ion-item>
+            </ion-list>
+          </div>
+        </div>
+      </ion-col>
+     
+
+      <!-- Main Form -->
+      <ion-col size="12" size-md="9" class="main-panel">
+        <div class="profile-section">
+          <h2>Mi Perfil</h2>
+
+          <!-- Perfil simple -->
+          <div class="profile-card">
+            <div class="profile-header">
+              <img src="assets/cuenta.png" class="profile-avatar" />
+              <div>
+                <h3>{{ usuario.nombre }} {{ usuario.apellidos }}</h3>
+                <p> {{ usuario.bio || 'Sin biografía' }}</p>
+              </div>
+              <ion-button fill="clear" (click)="modoEdicion = !modoEdicion">
+                {{ modoEdicion ? 'Cancelar' : 'Editar' }}
+              </ion-button>
+            </div>
+          </div>
+
+          <!-- Información personal -->
+          <div class="info-card">
+            <div class="card-header">
+              <h4>Información personal </h4>
+              <ion-button fill="clear" size="small" *ngIf="modoEdicion" (click)="guardar()">Guardar</ion-button>
+            </div>
+            
+            <div class="info-grid" *ngIf="!modoEdicion">
+              <div><strong>Nombre</strong><br>{{ usuario.nombre }}</div>
+              <div><strong>Apellidos</strong><br>{{ usuario.apellidos }}</div>
+              <div><strong>Email address</strong><br>{{ usuario.email }}</div>
+              <div><strong>Número de Teléfono</strong><br>{{ usuario.telefono }}</div>
+              <div><strong>Bio</strong><br>{{ usuario.bio }}</div>
+            </div>
+
+
+            <div class="info-grid" *ngIf="modoEdicion">
+              <div><strong>Nombre</strong><br>
+                <ion-input [(ngModel)]="usuario.nombre" placeholder="Nombre"></ion-input>
+              </div>
+              <div><strong>Apellidos</strong><br>
+                <ion-input [(ngModel)]="usuario.apellidos" placeholder="Apellidos"></ion-input>
+              </div>
+              <div><strong>Email address</strong><br>
+                <ion-input [(ngModel)]="usuario.email" placeholder="Email"></ion-input>
+              </div>
+              <div><strong>Número de Telefono</strong><br>
+                <ion-input [(ngModel)]="usuario.telefono" placeholder="Teléfono"></ion-input>
+              </div>
+              <div><strong>Biografía</strong><br>
+                <ion-textarea [(ngModel)]="usuario.bio" placeholder="Biografía"></ion-textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content> 

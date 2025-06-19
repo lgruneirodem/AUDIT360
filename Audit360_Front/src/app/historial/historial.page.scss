@@ -1,0 +1,35 @@
+::host {
+    --ion-padding: 1rem;
+    background: #F4F4F4;
+  }
+  .container {
+    padding: 1rem;
+    margin-top: 80px;
+}
+
+ion-card{
+  background:#F4F4F4;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+canvas {
+  display: block;
+  width: 100% !important;
+  margin: 0 auto;
+  max-width: 100%;
+  height: 300px !important;
+}
+
+.tabla-historial .cabecera {
+  font-weight: bold;
+  background-color: #0CABA8;
+  color: #012E40;
+  border-radius: 4px;
+}
+
+.scroll-historial {
+  max-height: 300px; /* ajusta según tu necesidad */
+  overflow-y: auto;
+}

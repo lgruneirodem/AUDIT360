@@ -1,0 +1,28 @@
+<ion-content class="ion-padding container">
+    <h1 class="titulo-seccion">Utilidades del sistema</h1>
+  
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Acciones disponibles</ion-card-title>
+      </ion-card-header>
+  
+      <ion-card-content>
+        <ion-list>
+          <ion-item button (click)="exportarDatos()">
+            <ion-icon name="download-outline" slot="start"></ion-icon>
+            <ion-label>Exportar base de datos</ion-label>
+          </ion-item>
+  
+          <ion-item button (click)="verConfiguracion()">
+            <ion-icon name="settings-outline" slot="start"></ion-icon>
+            <ion-label>Ver configuración del sistema</ion-label>
+          </ion-item>
+  
+          <ion-item button (click)="limpiarAuditorias()">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            <ion-label>Limpiar logs antiguos</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </ion-content>

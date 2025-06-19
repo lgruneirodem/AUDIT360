@@ -1,0 +1,71 @@
+<ion-content>
+  <div class="container ion-padding">
+    <h2 class="titulo-seccion">Historial de cambios</h2>
+
+    <!-- Filtros de periodo -->
+    <div class="filtros-periodo">
+      <ion-segment value="semana">
+        <ion-segment-button value="hoy">
+          <ion-label>Hoy</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="semana">
+          <ion-label>Esta semana</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="mes">
+          <ion-label>Este mes</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="personalizado">
+          <ion-label>Personalizado</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+  
+    <!-- Gráfica de actividad -->
+    <ion-card class="grafico-actividad">
+      <ion-card-header>
+        <ion-card-title>Actividad a lo largo del tiempo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <canvas #chartCanvas style="width: 100%; height: 400px;"></canvas>
+      </ion-card-content>
+    </ion-card>
+  
+    <!-- Tabla de historial -->
+    <ion-card class="tabla-historial">
+      <!--<ion-item>
+        <ion-label>Filtrar por tabla</ion-label>
+        <ion-select [(ngModel)]="filtroTabla" (ionChange)="filtrarPorTabla()">
+          <ion-select-option value="">Todas</ion-select-option>
+          <ion-select-option *ngFor="let tabla of tablasUnicas" [value]="tabla">{{ tabla }}</ion-select-option>
+        </ion-select>
+      </ion-item>-->
+      
+      <ion-grid>
+        <ion-row class="cabecera">
+          <ion-col>Fecha/Hora</ion-col>
+          <ion-col>Usuario</ion-col>
+          <ion-col>Tabla</ion-col>
+          <ion-col>Operación</ion-col>
+          <ion-col>Detalles</ion-col>
+          <ion-col>Estado</ion-col>
+        </ion-row>
+        
+        <div class="scroll-historial">
+          <ion-row *ngFor="let item of historial">
+            <ion-col>{{ item.created_on | date:'short' }}</ion-col>
+            <ion-col>{{ item.usuario || 'system' }}</ion-col>
+            <ion-col>{{ item.nom_tabla }}</ion-col>
+            <ion-col>{{ item.operacion }}</ion-col>
+            <ion-col>{{ item.id_audit }} filas</ion-col>
+            <ion-col>
+              <ion-icon
+                name="ellipse"
+                [color]="getEstadoColor(item.estado)">
+              </ion-icon>
+            </ion-col>
+          </ion-row>
+        </div>
+      </ion-grid>
+    </ion-card>
+  </div>
+</ion-content>

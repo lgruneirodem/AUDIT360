@@ -1,0 +1,76 @@
+<ion-content>
+  <ion-grid class="container ion-padding">
+    <ion-row>
+       <!--Sidebar -->
+       <ion-col size="12" size-md="3">
+        <div class="sidebar">
+          <div class="sidebar-container">
+            <ion-list lines="none">
+              <ion-item routerLink="/configuracion" routerDirection="root" >
+                <ion-label>Mi perfil </ion-label>
+              </ion-item>
+              <ion-item routerLink="/cuenta" routerDirection="root" class="active">
+                <ion-label>Cuenta</ion-label>
+              </ion-item>
+              <ion-item routerLink="/notificaciones" routerDirection="root">
+                <ion-label>Notificaciones</ion-label>
+              </ion-item>
+              <ion-item button class="delete-account">
+                <ion-label>Eliminar cuenta </ion-label>
+              </ion-item>
+            </ion-list>
+          </div>
+        </div>
+      </ion-col>
+     
+
+      <!-- Main panel -->
+      <ion-col size="12" size-md="9" class="main-panel">
+        <div class="profile-section">
+          <h2>Configuración de visualización </h2>
+
+          <div class="notification-section">
+            <h4>PRINCIPALES</h4>
+            <div class="notification-item">
+              <div>
+                <h5>Dark </h5>
+                <p>Te informaremos sobre nuevos productos y actualizaciones.</p>
+              </div>
+              <ion-toggle  checked></ion-toggle>
+            </div>
+
+            <div class="notification-item">
+              <div>
+                <h5>Multilenguaje</h5>
+                <p>Notificaciones de seguridad o mantenimiento crítico.</p>
+              </div>
+              <ion-toggle ></ion-toggle>
+            </div>
+
+            <h4>Accesibilidad</h4>
+
+            <div class="notification-item">
+              <div>
+                <h5>Ofertas y promociones</h5>
+                <p>Recibe descuentos exclusivos y eventos especiales.</p>
+              </div>
+              <ion-toggle checked></ion-toggle>
+            </div>
+
+            <div class="notification-item">
+              <div>
+                <h5>Recordatorios por SMS</h5>
+                <p>Te enviaremos recordatorios para no olvidar tareas importantes.</p>
+              </div>
+              <ion-toggle ></ion-toggle>
+            </div>
+
+            <ion-button expand="block" class="save-btn">
+              Guardar cambios
+            </ion-button>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

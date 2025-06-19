@@ -1,0 +1,40 @@
+<ion-content class=" container ion-padding">
+
+  <h1 class="titulo-seccion">Historial de Transacciones</h1>
+  <ion-card>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row class="header-row">
+          <ion-col><strong>Fecha</strong></ion-col>
+          <ion-col><strong>Usuario</strong></ion-col>
+          <ion-col><strong>Tipo</strong></ion-col>
+          <ion-col><strong>Tabla</strong></ion-col>
+          <ion-col><strong>ID Transacción</strong></ion-col>
+          <ion-col><strong>Rollback</strong></ion-col>
+        </ion-row>
+
+        <ion-row *ngFor="let tx of transacciones">
+          <ion-col>{{ tx.fecha }}</ion-col>
+          <ion-col>{{ tx.usuario }}</ion-col>
+          <ion-col>{{ tx.tipo }}</ion-col>
+          <ion-col>{{ tx.tabla }}</ion-col>
+          <ion-col>{{ tx.id }}</ion-col>
+          <ion-col>
+            <ion-button size="small" color="danger" (click)="simularRollback(tx)">
+              Rollback
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-alert
+    [isOpen]="showAlerta"
+    header="Rollback ejecutado"
+    message="Se ha simulado la reversión de la transacción."
+    buttons="OK"
+    (didDismiss)="showAlerta = false">
+  </ion-alert>
+  
+</ion-content>
