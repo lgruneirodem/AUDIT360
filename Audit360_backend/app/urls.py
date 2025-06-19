@@ -1,0 +1,26 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import DashboardTablaView, HistorialViewSet
+from .views import ActividadPorPeriodoView
+from .views import DashboardResumenView
+from .views import TablaAuditadaListView
+from .views import GenerarInformeIaAPIView,InformePDFAPIView,InformeRecienteAPIView,DatosInformeAPIView,GuardarInformeAPIView,UsuarioDetalleAPIView
+
+
+router = DefaultRouter()
+router.register(r'historial', HistorialViewSet, basename='historial')
+
+urlpatterns = [
+    path('', include(router.urls)),
+    path('actividad-periodo/', ActividadPorPeriodoView.as_view()),
+    path('dashboard-resumen/', DashboardResumenView.as_view()),
+    path('tabla-resumen/', DashboardTablaView.as_view()),
+    path('tablas-auditadas/', TablaAuditadaListView.as_view(), name='listar_tablas_auditadas'),
+    path('generar-informeIA/', GenerarInformeIaAPIView.as_view()),
+    path('informes/<int:pk>/pdf/', InformePDFAPIView.as_view(), name='informe_pdf'),
+    path('informes-recientes/', InformeRecienteAPIView.as_view(), name='informes_recientes'),
+    path('datos-informe/', DatosInformeAPIView.as_view(), name='datos_auditoria'),
+    path('guardar-informe/', GuardarInformeAPIView.as_view(), name='guardar_informe'),
+    path('usuarios/<int:pk>/', UsuarioDetalleAPIView.as_view(), name='usuario_detalle'),
+
+]

@@ -1,0 +1,264 @@
+VIEW DJANGO
+
+"""class GenerarInformeIaAPIView(APIView):
+    def post(self, request):
+        serializer = InformeRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        tabla = serializer.validated_data['tabla']
+        periodo = serializer.validated_data['periodo']
+        tipo = serializer.validated_data['tipo']
+        datos = serializer.validated_data['datos']
+
+        prompt_base = TIPO_ANALISIS_PROMPT[tipo].format(tabla=tabla, periodo=periodo)
+        prompt = f"""{prompt_base}"""
+
+        Datos:
+        {json.dumps(datos, indent=2)}
+
+        Genera:
+        1. Un resumen textual del análisis.
+        2. El código Python con matplotlib para generar un gráfico representativo de los datos.
+
+        Devuelve solo el resumen, y debajo un bloque de código Python claro entre triple backticks.
+
+        Ejemplo:
+        Resumen:
+        ...
+        ```python
+        import matplotlib.pyplot as plt
+        ...
+        plt.savefig(...)"""
+
+        """print("📤 Prompt enviado a OpenAI:")
+        print(prompt)"""
+
+
+       """ try:
+            # Llamada a OpenAI
+            client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3
+            )
+            respuesta_ia = response.choices[0].message.content
+
+            # Extraer resumen
+            resumen = respuesta_ia.split("```")[0].replace("Resumen:", "").strip()
+
+            # Extraer código matplotlib
+            codigo = self.extraer_codigo_matplotlib(respuesta_ia)
+            grafico_base64 = None
+            if codigo:
+                grafico_base64 = self.ejecutar_codigo_matplotlib(codigo)
+
+            # Guardar informe
+            InformeAuditoria.objects.create(
+                tabla=tabla,
+                periodo=periodo,
+                generado_por=request.user.username if request.user.is_authenticated else "anónimo",
+                resumen=resumen,
+                datos=datos
+            )
+
+            return Response({
+                'resumen': resumen,
+                'grafico': grafico_base64
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)"""
+
+    """def extraer_codigo_matplotlib(self, respuesta):
+        """Extrae el bloque de código Python de matplotlib desde la respuesta de la IA"""
+        match = re.search(r"```python(.*?)```", respuesta, re.DOTALL)
+        return match.group(1).strip() if match else None"""
+
+    """def ejecutar_codigo_matplotlib(self, codigo):"""
+        """
+        Ejecuta código matplotlib en un entorno controlado y devuelve la imagen como base64.
+        PELIGRO: No uses esto con código arbitrario sin sandboxing.
+        """
+        """stdout = io.StringIO()
+        local_vars = {}
+        try:
+            with redirect_stdout(stdout):
+                exec(codigo, {'plt': plt, '__builtins__': {}}, local_vars)
+                buf = io.BytesIO()
+                plt.tight_layout()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                imagen_base64 = base64.b64encode(buf.read()).decode('utf-8')
+                plt.close()
+                return imagen_base64
+        except Exception as e:
+            print("⚠️ Error ejecutando código matplotlib:", e)
+            return None"""
+
+
+
+
+EXPORTAT.TS
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { IonicModule } from '@ionic/angular';
+import { NgChartsModule } from 'ng2-charts';
+import { ExportarService } from '../services/exportar.service';
+import { ChartConfiguration, ChartType } from 'chart.js';
+
+
+
+
+@Component({
+  selector: 'app-exportar',
+  templateUrl: './exportar.page.html',
+  styleUrls: ['./exportar.page.scss'],
+  standalone: true,
+  imports: [IonicModule, CommonModule, FormsModule,NgChartsModule]
+})
+export class ExportarPage implements OnInit {
+  
+  tabla: string = '';
+  tipo: string = '';
+  fechaInicio: string = '';     
+  fechaFin: string = '';
+  informes: any[] = [];
+  resumen: string = '';
+  detalleDatos: any[] = [];
+  cargando: boolean = false;
+  graficoBase64: string = ''; 
+
+  
+  mapaTipos: { [key: string]: string } = {
+    'Detallado': 'detallado',
+    'Resumen': 'resumen',
+    'Enfoque en anomalías': 'anomalías',
+    'Tendencias': 'tendencias'
+  };
+
+  constructor(private exportarService: ExportarService){}
+  
+  ngOnInit() {
+    this.exportarService.getInformesRecientes().subscribe(data => {
+      this.informes = data;
+    });
+  }
+
+  generarInforme() {
+    if (!this.tabla || !this.tipo || !this.fechaInicio || !this.fechaFin) {
+      alert('Todos los campos son obligatorios');
+      return;
+    }
+  
+    this.cargando = true;
+  
+    // Obtener el valor real que espera el backend
+    const tipoBackend = this.mapaTipos[this.tipo];
+  
+    if (!tipoBackend) {
+      alert('Selecciona un tipo de análisis válido');
+      this.cargando = false;
+      return;
+    }
+  
+    this.exportarService.getDatosinforme(this.tabla, this.fechaInicio, this.fechaFin).subscribe(
+      (datos) => {
+        // Formatear los datos según el esquema del backend
+        const datosFormateados = datos.map((item: any) => {
+          const camposConvertidos = Object.entries(item)
+            .filter(([clave]) => clave !== 'fecha' && clave !== 'usuario')
+            .map(([clave, valor]) => ({
+              campo: clave,
+              valor_anterior: null, // o añade lógica si tienes versión anterior
+              valor_nuevo: valor
+            }));
+  
+          return {
+            fecha: item.fecha || '2025-01-01',
+            usuario: item.usuario || 'desconocido',
+            campos: camposConvertidos
+          };
+        });
+  
+        const payload = {
+          tabla: this.tabla,
+          periodo: `${this.fechaInicio} - ${this.fechaFin}`,
+          tipo: tipoBackend,
+          datos: datosFormateados
+        };
+  
+        console.log('📤 Payload final:', JSON.stringify(payload, null, 2));
+  
+        this.exportarService.generarInformeIA(payload).subscribe(
+          (res) => {
+            console.log('✅ Informe generado');
+            this.resumen = res.resumen;
+            this.graficoBase64 = res.grafico;
+            this.detalleDatos = datos;
+            this.cargando = false;
+          },
+          (error) => {
+            console.error('❌ Error al generar el informe IA:', error);
+            alert('Error al generar el informe. Revisa la consola para más detalles.');
+            this.cargando = false;
+          }
+        );
+      },
+      (error) => {
+        console.error('❌ Error al obtener datos del informe:', error);
+        alert('No se pudieron cargar los datos del informe.');
+        this.cargando = false;
+      }
+    );
+  }
+
+  
+  guardarInforme() {
+    const payload = {
+      tabla: this.tabla,
+      periodo: `${this.fechaInicio} / ${this.fechaFin}`,
+      resumen: this.resumen,
+      datos: this.detalleDatos
+    };
+  
+    this.exportarService.guardarInforme(payload).subscribe({
+      next: () => {
+        console.log('Informe guardado correctamente');
+      },
+      error: (err) => {
+        console.error('Error al guardar:', err);
+      }
+    });
+  }
+  
+  descargar(id: number) {
+    this.exportarService.descargarPDF(id).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `informe_${id}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  /*chartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [{ data: [], label: 'Operaciones por usuario' }]
+  };
+  
+  updateChart(datos: any[]) {
+    const agrupado: { [usuario: string]: number } = {};
+    datos.forEach((item) => {
+      agrupado[item.usuario] = (agrupado[item.usuario] || 0) + 1;
+    });
+  
+    this.chartData.labels = Object.keys(agrupado);
+    this.chartData.datasets[0].data = Object.values(agrupado);
+  }*/
+
+}

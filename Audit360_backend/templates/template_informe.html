@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Informe de Auditoría - Audit 360</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #26a69a;
+      }
+      .logo {
+        width: 150px;
+        height: auto;
+      }
+      .header-right {
+        text-align: right;
+      }
+      h1 {
+        color: #26a69a;
+        margin: 0;
+        font-size: 28px;
+      }
+      h2 {
+        color: #26a69a;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        font-size: 24px;
+      }
+      h4 {
+        color: #26a69a;
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+      .info-section {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .info-item {
+        margin-bottom: 8px;
+      }
+      .info-item strong {
+        display: inline-block;
+        min-width: 120px;
+        color: #26a69a;
+      }
+      .content-section {
+        margin-top: 20px;
+        padding: 15px;
+      }
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+      }
+      hr {
+        border: none;
+        height: 1px;
+        margin: 20px 0;
+      }
+      /* Esta es la imagen del logo en formato base64 */
+      .logo-image {
+        width: 120px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">
+          <!-- Aquí coloco una imagen del logo de Audit 360 -->
+          <img src="{{ STATIC_URL }}audit360/img/logo.png" alt="Logo de Audit 360" width="120" height="120">
+        </div>
+        <div class="header-right">
+          <h1>Informe de Auditoría</h1>
+          <p>Fecha: {{ informe.fecha_generacion }}</p>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Tabla:</strong> {{ informe.tabla }}
+          </div>
+          <div class="info-item">
+            <strong>Periodo:</strong> {{ informe.periodo }}
+          </div>
+          <div class="info-item">
+            <strong>Generado por:</strong> {{ informe.generado_por }}
+          </div>
+          <div class="info-item">
+            <strong>ID Informe:</strong> INF-{{ informe.id }}
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section">
+        <h4>Resumen Ejecutivo:</h4>
+        <div>{{ informe.resumen|safe }}</div>
+      </div>
+
+      <div class="footer">
+        <p>
+          © 2025 Audit 360 . Todos los derechos reservados. Informe generado automáticamente 
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
