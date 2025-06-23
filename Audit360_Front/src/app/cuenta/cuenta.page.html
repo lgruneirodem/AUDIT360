@@ -44,7 +44,7 @@
                 <h5>Multilenguaje</h5>
                 <p>Notificaciones de seguridad o mantenimiento crítico.</p>
               </div>
-              <ion-toggle ></ion-toggle>
+              <ion-toggle  [(ngModel)]="multiLangEnabled" (ionChange)="LanguageChange($event.detail.value)"></ion-toggle>
             </div>
 
             <h4>Accesibilidad</h4>
