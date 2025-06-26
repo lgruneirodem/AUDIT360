@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-transacciones',
@@ -11,40 +12,61 @@ import { IonicModule } from '@ionic/angular';
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class TransaccionesPage implements OnInit {
+  rollbacks: any[] = [];
+  solicitudes: any[] = [];
+  flujoTransaccion: any[] = [];
+  comparacion: any[] = [];
+  nuevaSolicitud = {
+    id_transaccion: null,
+    motivo: ''
+  };
 
-  constructor() { }
+  private baseUrl = 'http://localhost:8000/app';
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
+    this.cargarRollbacks();
+    this.cargarSolicitudes();
   }
-  showAlerta = false;
-
-  transacciones = [
-    {
-      fecha: '05/05/2025 14:20',
-      usuario: 'laura_admin',
-      tipo: 'Update',
-      tabla: 'animador',
-      id: 101
-    },
-    {
-      fecha: '04/05/2025 18:42',
-      usuario: 'sistemas',
-      tipo: 'Delete',
-      tabla: 'usuario',
-      id: 102
-    },
-    {
-      fecha: '03/05/2025 10:15',
-      usuario: 'jorge_analista',
-      tipo: 'Insert',
-      tabla: 'actividad',
-      id: 103
-    }
-  ];
-
-  simularRollback(transaccion: any) {
-    console.log('🌀 Simulando rollback de la transacción', transaccion.id);
-    this.showAlerta = true;
+ 
+   cargarRollbacks() {
+    this.http.get<any[]>('/api/rollbacks-ejecutados/').subscribe(
+      data => this.rollbacks = data,
+      err => console.error('Error al cargar rollbacks', err)
+    );
   }
 
+  cargarSolicitudes() {
+    this.http.get<any[]>('/api/solicitudes-rollback/').subscribe(
+      data => this.solicitudes = data,
+      err => console.error('Error al cargar solicitudes', err)
+    );
+  }
+
+  solicitarRollback() {
+    this.http.post('/api/solicitar-rollback/', this.nuevaSolicitud).subscribe(
+      res => {
+        alert('Solicitud enviada correctamente');
+        this.nuevaSolicitud = { id_transaccion: null, motivo: '' };
+        this.cargarSolicitudes();
+      },
+      err => alert(err.error?.error || 'Error al enviar solicitud')
+    );
+  }
+
+  /*verDetalleSolicitud(solicitud: any) {
+    const id = solicitud.id_transaccion;
+
+    // Comparación de estados (old vs new)
+    this.http.get(`/api/comparacion-estados/${id}/`).subscribe(
+      data => this.comparacion = data,
+      err => console.error('Error en comparación', err)
+    );
+
+    // Flujo de transacción
+    this.http.get(`/api/flujo-transaccion/${id}/`).subscribe(
+      data => this.flujoTransaccion = data,
+      err => console.error('Error en flujo', err)
+    );
+  }*/
 }

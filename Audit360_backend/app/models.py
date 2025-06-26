@@ -15,6 +15,23 @@ class AuditAuxTxLog(models.Model):
         ordering = ['-created_on']
         managed = False
 
+class SystemLog(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    tipo = models.CharField(max_length=64)  # Ej: "Trigger Error", "Integration"
+    tabla = models.CharField(max_length=64, null=True, blank=True)
+    mensaje = models.TextField()
+    nivel = models.CharField(max_length=16)  # Ej: "CRITICO", "INFO", "ÉXITO"
+    detalles = models.JSONField(null=True, blank=True)
+
+    visible_para = models.CharField(
+        max_length=16,
+        choices=[('auditor', 'Auditor'), ('admin', 'Administrador')],
+        default='admin'
+    )
+
+    def __str__(self):
+        return f"[{self.nivel}] {self.tipo} - {self.tabla}"
+
 class Usuario(models.Model):
     nombre = models.CharField(max_length=100)
     apellidos = models.CharField(max_length=100)

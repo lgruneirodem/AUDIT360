@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import AuditAuxTxLog
 from .models import TablaAuditada
 from .models import InformeAuditoria
-from .models import Usuario
+from .models import Usuario, SystemLog
 
 
 class AuditAuxTxLogSerializer(serializers.ModelSerializer):
@@ -27,6 +27,20 @@ class AuditAuxTxLogSerializer(serializers.ModelSerializer):
             'D': 'Delete',
             'R': 'Rollback'
         }.get(obj.audit_type, 'Otro')
+
+class SystemLogSerializer(serializers.ModelSerializer):
+    acciones = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SystemLog
+        fields = '__all__'
+
+    def get_acciones(self, obj):
+        if obj.nivel == "CRITICO":
+            return ["Ver Error", "Reintentar"]
+        elif obj.nivel == "INFO":
+            return ["Revisar"]
+        return ["Ver Detalles"]
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:

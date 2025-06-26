@@ -4,7 +4,7 @@ from .views import DashboardTablaView, HistorialViewSet
 from .views import ActividadPorPeriodoView
 from .views import DashboardResumenView
 from .views import TablaAuditadaListView
-from .views import GenerarInformeIaAPIView,InformePDFAPIView,InformeRecienteAPIView,DatosInformeAPIView,GuardarInformeAPIView,UsuarioDetalleAPIView
+from .views import GenerarInformeIaAPIView,InformePDFAPIView,InformeRecienteAPIView,DatosInformeAPIView,GuardarInformeAPIView,UsuarioDetalleAPIView,SystemLogAPIView,CrearAuditoriaView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -23,6 +23,8 @@ urlpatterns = [
 
     path('actividad-periodo/', ActividadPorPeriodoView.as_view()),
     path('dashboard-resumen/', DashboardResumenView.as_view()),
+    path('logs/', SystemLogAPIView.as_view(), name='logs-por-rol'),
+    path('crear-auditoria/', CrearAuditoriaView.as_view(), name='crear-auditoria'),
     path('tabla-resumen/', DashboardTablaView.as_view()),
     path('tablas-auditadas/', TablaAuditadaListView.as_view(), name='listar_tablas_auditadas'),
     path('generar-informeIA/', GenerarInformeIaAPIView.as_view()),

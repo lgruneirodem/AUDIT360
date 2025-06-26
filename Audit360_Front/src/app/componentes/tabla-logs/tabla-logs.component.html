@@ -1,26 +1,409 @@
-<div class="table-box">
-  <ion-grid>
-    <ion-row>
-      <ion-col><strong>Tabla </strong></ion-col>
-      <ion-col><strong>Registros</strong></ion-col>
-      <ion-col><strong>Estados Auditoría</strong></ion-col>
-      <ion-col><strong>Última operación</strong></ion-col>
-      <ion-col><strong>Alertas</strong></ion-col>
-      <ion-col><strong>Acciones</strong></ion-col>
-    </ion-row>
+<!-- Contenedor principal de logs y monitoreo -->
+<div class="logs-container">
+  
+  <!-- Pestañas de navegación -->
+  <div class="tabs-container">
+    <ion-segment [(ngModel)]="tabActiva" (ionChange)="cambiarTab($event)">
+      <ion-segment-button value="gestion">
+        <ion-icon name="settings-outline"></ion-icon>
+        <ion-label>Gestión de Auditoría</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="historial">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>Historial y Análisis</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="logs">
+        <ion-icon name="list-outline"></ion-icon>
+        <ion-label>Logs y Monitoreo</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
 
-    <!--<ion-row >
-      <ion-col>{{ table.name }}</ion-col>
-      <ion-col>{{ table.rows }}</ion-col>
-      <ion-col><span class="audit-icon">whatever </span></ion-col>
-      <ion-col>{{ table.lastOp }}</ion-col>
-      <ion-col>{{ table.lastOp }}</ion-col>
-      <ion-col>{{ table.lastOp }}</ion-col>
-    </ion-row> -->
+  <!-- Contenido de la pestaña Logs y Monitoreo -->
+  <div class="tab-content" *ngIf="tabActiva === 'logs'">
+    
+    <!-- Barra de herramientas -->
+    <ion-card class="toolbar-card">
+      <ion-card-content>
+        <div class="toolbar-row">
+          <div class="action-buttons">
+            <ion-button 
+              fill="solid" 
+              color="primary"
+              (click)="actualizarLogs()"
+              [disabled]="loading">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Actualizar Logs
+            </ion-button>
+            
+            <ion-button 
+              fill="outline" 
+              color="secondary"
+              (click)="verificarEstadoIntegracion()">
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              Estado Integración
+            </ion-button>
+            
+            <ion-button 
+              fill="outline" 
+              color="warning"
+              (click)="limpiarLogsAntiguos()">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Limpiar Logs Antiguos
+            </ion-button>
+          </div>
+          
+          <!-- Filtros rápidos -->
+          <div class="quick-filters">
+            <ion-chip 
+              *ngFor="let filtro of filtrosRapidos" 
+              [class.active]="filtroActivo === filtro.value"
+              (click)="aplicarFiltroRapido(filtro.value)"
+              [color]="filtro.color">
+              <ion-icon [name]="filtro.icon"></ion-icon>
+              <ion-label>{{ filtro.label }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
 
-    <ion-row >
-      <ion-col size="12" class="ion-text-center text-muted"
-        >No hay resultados</ion-col
-      >
-    </ion-row>
-  </ion-grid>
+    <!-- Filtros avanzados -->
+    <ion-card class="filters-card" [class.expanded]="filtrosExpandidos">
+      <ion-card-header (click)="toggleFiltros()">
+        <ion-card-title>
+          <ion-icon name="filter-outline"></ion-icon>
+          Filtros Avanzados
+          <ion-icon 
+            [name]="filtrosExpandidos ? 'chevron-up-outline' : 'chevron-down-outline'"
+            class="expand-icon">
+          </ion-icon>
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content *ngIf="filtrosExpandidos">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="3">
+              <ion-item>
+                <ion-label position="floating">Tipo de Log</ion-label>
+                <ion-select [(ngModel)]="filtros.tipo" multiple="true">
+                  <ion-select-option value="">Todos</ion-select-option>
+                  <ion-select-option value="Trigger Error">🔴 Trigger Error</ion-select-option>
+                  <ion-select-option value="Integration">🔵 Integration</ion-select-option>
+                  <ion-select-option value="Audit Setup">🟢 Audit Setup</ion-select-option>
+                  <ion-select-option value="System">⚙️ System</ion-select-option>
+                  <ion-select-option value="Warning">⚠️ Warning</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            
+            <ion-col size="12" size-md="3">
+              <ion-item>
+                <ion-label position="floating">Severidad</ion-label>
+                <ion-select [(ngModel)]="filtros.severidad" multiple="true">
+                  <ion-select-option value="">Todas</ion-select-option>
+                  <ion-select-option value="CRITICO">🔴 Crítico</ion-select-option>
+                  <ion-select-option value="ALTO">🟠 Alto</ion-select-option>
+                  <ion-select-option value="INFO">🔵 Info</ion-select-option>
+                  <ion-select-option value="EXITO">🟢 Éxito</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            
+            <ion-col size="12" size-md="3">
+              <ion-item>
+                <ion-label position="floating">Tabla/Proceso</ion-label>
+                <ion-input 
+                  [(ngModel)]="filtros.tablaProceso" 
+                  placeholder="Filtrar por tabla..."
+                  clear-input="true">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            
+            <ion-col size="12" size-md="3">
+              <ion-item>
+                <ion-label position="floating">Rango de Fechas</ion-label>
+                <ion-datetime 
+                  [(ngModel)]="filtros.fechaDesde"
+                  display-format="DD/MM/YYYY"
+                  placeholder="Desde">
+                </ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          
+          <ion-row>
+            <ion-col size="12" class="filter-actions">
+              <ion-button fill="solid" (click)="aplicarFiltros()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Aplicar Filtros
+              </ion-button>
+              <ion-button fill="clear" (click)="limpiarFiltros()">
+                <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                Limpiar
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Estadísticas rápidas -->
+    <div class="stats-container">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" size-md="3">
+            <div class="stat-card critical">
+              <div class="stat-value">{{ stats.criticos }}</div>
+              <div class="stat-label">Críticos</div>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-card warning">
+              <div class="stat-value">{{ stats.advertencias }}</div>
+              <div class="stat-label">Advertencias</div>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-card info">
+              <div class="stat-value">{{ stats.info }}</div>
+              <div class="stat-label">Informativos</div>
+            </div>
+          </ion-col>
+          <ion-col size="6" size-md="3">
+            <div class="stat-card success">
+              <div class="stat-value">{{ stats.exitosos }}</div>
+              <div class="stat-label">Exitosos</div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Tabla de logs -->
+    <ion-card class="logs-table-card">
+      <ion-card-content>
+        
+        <!-- Loading state -->
+        <div *ngIf="loading" class="loading-container">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Cargando logs...</p>
+        </div>
+
+        <!-- Desktop table -->
+        <div class="desktop-logs-table" *ngIf="!loading && !isMobile">
+          <ion-grid class="logs-grid">
+            
+            <!-- Header -->
+            <ion-row class="logs-header">
+              <ion-col size="2">
+                <strong>Timestamp</strong>
+                <ion-icon name="swap-vertical-outline" (click)="ordenarPor('timestamp')"></ion-icon>
+              </ion-col>
+              <ion-col size="1.5">
+                <strong>Tipo</strong>
+              </ion-col>
+              <ion-col size="2">
+                <strong>Tabla/Proceso</strong>
+              </ion-col>
+              <ion-col size="3.5">
+                <strong>Mensaje</strong>
+              </ion-col>
+              <ion-col size="1.5">
+                <strong>Severidad</strong>
+              </ion-col>
+              <ion-col size="1.5">
+                <strong>Acciones</strong>
+              </ion-col>
+            </ion-row>
+            
+            <!-- Data rows -->
+            <ion-row 
+              *ngFor="let log of logsFiltrados; let i = index" 
+              class="log-row"
+              [class.even-row]="i % 2 === 0"
+              [class.critical-row]="log.severidad === 'CRITICO'"
+              [class.warning-row]="log.severidad === 'ALTO'">
+              
+              <ion-col size="2" class="timestamp-col">
+                <div class="timestamp-container">
+                  <span class="date">{{ log.timestamp | date:'dd/MM/yyyy' }}</span>
+                  <span class="time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
+                </div>
+              </ion-col>
+              
+              <ion-col size="1.5" class="type-col">
+                <ion-badge [color]="getTipoBadgeColor(log.tipo)" class="type-badge">
+                  {{ log.tipo }}
+                </ion-badge>
+              </ion-col>
+              
+              <ion-col size="2" class="table-col">
+                <div class="table-info">
+                  <ion-icon name="table-outline" class="table-icon"></ion-icon>
+                  <span class="table-name">{{ log.tablaProceso }}</span>
+                </div>
+              </ion-col>
+              
+              <ion-col size="3.5" class="message-col">
+                <div class="message-container" [title]="log.mensaje">
+                  <span class="message-text">{{ log.mensaje }}</span>
+                  <ion-icon 
+                    *ngIf="log.detalles" 
+                    name="information-circle-outline" 
+                    class="details-icon"
+                    (click)="verDetalles(log)">
+                  </ion-icon>
+                </div>
+              </ion-col>
+              
+              <ion-col size="1.5" class="severity-col">
+                <ion-badge [color]="getSeveridadColor(log.severidad)" class="severity-badge">
+                  <ion-icon [name]="getSeveridadIcon(log.severidad)"></ion-icon>
+                  {{ log.severidad }}
+                </ion-badge>
+              </ion-col>
+              
+              <ion-col size="1.5" class="actions-col">
+                <div class="action-buttons">
+                  <ion-button 
+                    size="small" 
+                    fill="clear" 
+                    color="primary"
+                    (click)="verDetalles(log)"
+                    *ngIf="log.severidad === 'CRITICO'">
+                    <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    size="small" 
+                    fill="clear" 
+                    color="success"
+                    (click)="reintentarAccion(log)"
+                    *ngIf="log.tipo === 'Trigger Error'">
+                    <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    size="small" 
+                    fill="clear" 
+                    color="secondary"
+                    (click)="revisarTablas(log)"
+                    *ngIf="log.tipo === 'Integration'">
+                    <ion-icon name="list-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  
+                  <ion-button 
+                    size="small" 
+                    fill="clear" 
+                    color="medium"
+                    (click)="verDetallesCompletos(log)">
+                    <ion-icon name="document-text-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="mobile-logs" *ngIf="!loading && isMobile">
+          <ion-card 
+            *ngFor="let log of logsFiltrados" 
+            class="mobile-log-card"
+            [class.critical-card]="log.severidad === 'CRITICO'"
+            [class.warning-card]="log.severidad === 'ALTO'">
+            
+            <ion-card-header>
+              <div class="mobile-log-header">
+                <div class="log-type-time">
+                  <ion-badge [color]="getTipoBadgeColor(log.tipo)">{{ log.tipo }}</ion-badge>
+                  <span class="mobile-time">{{ log.timestamp | date:'dd/MM HH:mm' }}</span>
+                </div>
+                <ion-badge [color]="getSeveridadColor(log.severidad)" class="mobile-severity">
+                  <ion-icon [name]="getSeveridadIcon(log.severidad)"></ion-icon>
+                  {{ log.severidad }}
+                </ion-badge>
+              </div>
+            </ion-card-header>
+            
+            <ion-card-content>
+              <div class="mobile-log-content">
+                <div class="log-info">
+                  <div class="info-row">
+                    <span class="label">Tabla/Proceso:</span>
+                    <span class="value">{{ log.tablaProceso }}</span>
+                  </div>
+                  <div class="info-row message-row">
+                    <span class="label">Mensaje:</span>
+                    <span class="value">{{ log.mensaje }}</span>
+                  </div>
+                </div>
+                
+                <div class="mobile-actions">
+                  <ion-button size="small" fill="outline" (click)="verDetalles(log)">
+                    Ver Detalles
+                  </ion-button>
+                  <ion-button 
+                    size="small" 
+                    fill="clear" 
+                    (click)="reintentarAccion(log)"
+                    *ngIf="log.tipo === 'Trigger Error'">
+                    Reintentar
+                  </ion-button>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!loading && logsFiltrados.length === 0" class="empty-logs-state">
+          <ion-icon name="document-outline" class="empty-icon"></ion-icon>
+          <h3>No se encontraron logs</h3>
+          <p>No hay logs que coincidan con los filtros seleccionados</p>
+          <ion-button fill="outline" (click)="limpiarFiltros()">
+            Limpiar Filtros
+          </ion-button>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination-container" *ngIf="!loading && logsFiltrados.length > 0">
+          <ion-grid>
+            <ion-row class="ion-align-items-center">
+              <ion-col size="12" size-md="6">
+                <span class="pagination-info">
+                  Mostrando {{ (paginaActual - 1) * itemsPorPagina + 1 }} - 
+                  {{ Math.min(paginaActual * itemsPorPagina, totalLogs) }} 
+                  de {{ totalLogs }} logs
+                </span>
+              </ion-col>
+              <ion-col size="12" size-md="6" class="ion-text-end">
+                <ion-button 
+                  fill="clear" 
+                  [disabled]="paginaActual === 1"
+                  (click)="cambiarPagina(paginaActual - 1)">
+                  <ion-icon name="chevron-back-outline"></ion-icon>
+                  Anterior
+                </ion-button>
+                <span class="page-numbers">
+                  {{ paginaActual }} / {{ totalPaginas }}
+                </span>
+                <ion-button 
+                  fill="clear" 
+                  [disabled]="paginaActual === totalPaginas"
+                  (click)="cambiarPagina(paginaActual + 1)">
+                  Siguiente
+                  <ion-icon name="chevron-forward-outline"></ion-icon>
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+  </div>
+</div>

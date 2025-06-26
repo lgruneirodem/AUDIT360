@@ -5,7 +5,7 @@ from rest_framework.generics import ListAPIView,RetrieveUpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models.functions import TruncDate, TruncWeek, TruncMonth
@@ -15,16 +15,12 @@ from django.db import connection
 from django.utils.timezone import now
 from django.conf import settings
 from django.template.loader import render_to_string
-from .serializers import AuditAuxTxLogSerializer, TablaAuditadaSerializer, InformeRequestSerializer, InformeSerializer,UsuarioSerializer
-from .models import AuditAuxTxLog, TablaAuditada, InformeAuditoria, Usuario
+from .serializers import AuditAuxTxLogSerializer, TablaAuditadaSerializer, InformeRequestSerializer, InformeSerializer,UsuarioSerializer,SystemLogSerializer
+from .models import AuditAuxTxLog, TablaAuditada, InformeAuditoria, Usuario,SystemLog
 from xhtml2pdf import pisa
 from openai import OpenAI
-from contextlib import redirect_stdout
-import matplotlib.pyplot as plt
 import json
-import io
-import re
-import base64
+
 
 #
 class UsuarioDetalleAPIView(RetrieveUpdateAPIView):
@@ -101,6 +97,41 @@ class DashboardTablaView(APIView):
 
         return Response(resumen)
 
+class SystemLogAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        user = request.user
+
+        # Si el usuario pertenece al grupo 'Auditor', solo ve logs relevantes para auditores
+        if user.groups.filter(name='Auditor').exists():
+            logs = SystemLog.objects.filter(visible_para='auditor')
+        else:
+            # Admin o cualquier otro rol ve todos los logs
+            logs = SystemLog.objects.all()
+
+        logs = logs.order_by('-timestamp')[:100]  # puedes paginar si necesitas
+        serializer = SystemLogSerializer(logs, many=True)
+        return Response(serializer.data)
+
+class CrearAuditoriaView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        tabla = request.data.get('tabla')
+        if not tabla:
+            return Response({'error': 'Falta el nombre de la tabla'}, status=400)
+
+        esquema = connection.settings_dict['NAME']
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CALL start_transaction_audit();")
+                cursor.execute(f"CALL crea_tabla_audit_grupal('{esquema}', '{tabla}');")
+                cursor.execute("CALL end_transaction_audit();")
+                cursor.execute(f"CALL crea_vista_auditoria('{esquema}', '{tabla}');")
+            return Response({'mensaje': f'Auditoría creada para tabla "{tabla}"'}, status=200)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 def get_estado_auditoria(obj):
     if obj.rollbacked:

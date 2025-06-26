@@ -1,20 +1,280 @@
+/* Estilos base */
 ::host {
-    --ion-padding: 2rem;
-    background: #f4f4f4;
-  }
-  
+  --ion-padding: 1rem;
+  background: #f8f9fa;
+}
+
+.container {
+  padding: 70rem;
+  margin-top: 200px; /* Reducido para dar más espacio */
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Espaciado entre filas */
+.main-row {
+  margin-bottom: 2rem;
+}
+
+.secondary-row {
+  margin-bottom: 2rem;
+}
+
+.comparison-row {
+  margin-bottom: 2rem;
+}
+
+.flow-row {
+  margin-bottom: 2rem;
+}
+
+/* Estilos para las cards */
+ion-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+ion-card-header {
+  background: linear-gradient(135deg, #3CA6A6 0%, #3CA6A6 100%);
+  color: white;
+  padding: 1.5rem;
+}
+
+ion-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+ion-card-content {
+  padding: 1.5rem;
+}
+
+/* Estilos específicos para cada sección */
+.solicitudes-card {
+  margin-top: 100px;
+  height: fit-content;
+  min-height: 300px;
+}
+
+.form-card {
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+}
+.textArea-item{
+  margin-top: 15px;
+}
+
+.rollbacks-card {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Estilos para items de lista */
+.solicitud-item,
+.rollback-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 0;
+}
+
+.solicitud-item:last-child,
+.rollback-item:last-child {
+  border-bottom: none;
+}
+
+.solicitud-item ion-label h2,
+.rollback-item ion-label h2 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.solicitud-item ion-label p,
+.rollback-item ion-label p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Estilos para el formulario */
+.form-item {
+  margin-bottom: 1.5rem;
+  --border-color: #ddd;
+  --border-radius: 8px;
+}
+
+.form-item ion-label {
+  color: #555;
+  font-weight: 500;
+}
+
+.form-item ion-input,
+.form-item ion-textarea {
+  --border-radius: 8px;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+}
+
+.submit-btn {
+  margin-top: 1rem;
+  --border-radius: 8px;
+  height: 45px;
+  font-weight: 600;
+}
+
+/* Estilos para la tabla de comparación */
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.comparison-grid {
+  margin: 0;
+  min-width: 600px;
+}
+
+.header-row {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+}
+
+.header-row ion-col {
+  padding: 1rem;
+  border-right: 1px solid #dee2e6;
+}
+
+.header-row ion-col:last-child {
+  border-right: none;
+}
+
+.data-row {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.data-row:last-child {
+  border-bottom: none;
+}
+
+.data-row ion-col {
+  padding: 0.75rem 1rem;
+  border-right: 1px solid #e9ecef;
+  font-size: 0.9rem;
+}
+
+.data-row ion-col:last-child {
+  border-right: none;
+}
+
+.old-value {
+  background-color: #fff5f5;
+  color: #c53030;
+}
+
+.new-value {
+  background-color: #f0fff4;
+  color: #38a169;
+}
+
+/* Estilos para el flujo de transacción */
+.flow-list {
+  background: transparent;
+}
+
+.flow-item {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px --ion-color-primary;
+}
+
+.flow-item:last-child {
+  margin-bottom: 0;
+}
+
+.flow-icon {
+  color: --ion-color-primary;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.flow-item ion-label h3 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.flow-item ion-label p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Mensaje para datos vacíos */
+.no-data {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
   .container {
-    padding-top: 10rem;
+    padding: 0.5rem;
+    margin-top: 60px;
   }
   
-  .titulo-seccion {
-    margin-bottom: 3rem;
-    font-size: 1.6rem;
-    font-weight: 600;
+  .main-row,
+  .secondary-row,
+  .comparison-row,
+  .flow-row {
+    margin-bottom: 1rem;
   }
   
-  .header-row {
-    background: #f2f2f2;
-    font-weight: bold;
-    border-bottom: 1px solid #ccc;
+  ion-card-content {
+    padding: 1rem;
   }
+  
+  .form-card {
+    position: static;
+  }
+  
+  .comparison-grid {
+    min-width: 100%;
+  }
+  
+  .header-row ion-col,
+  .data-row ion-col {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Animaciones sutiles */
+ion-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+ion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+ion-button {
+  transition: all 0.2s ease;
+}
+
+.flow-item {
+  transition: all 0.2s ease;
+}
+
+.flow-item:hover {
+  background: #e8f4f8;
+  transform: translateX(5px);
+}

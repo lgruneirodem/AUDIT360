@@ -17,4 +17,8 @@ export class TablasService {
   getFiltradas(params: any): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl, { params });
   }
+
+  getLogs() {
+    return this.http.get<any[]>(this.apiUrl);
+  }
 }

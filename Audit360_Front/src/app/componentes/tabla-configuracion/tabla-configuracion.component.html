@@ -1,84 +1,270 @@
-<!-- Caja de filtros -->
-<div class="filter-box">
-  <h6>🔎 Filtros</h6>
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12" size-md="4">
-        <ion-label>Estado de Auditoría</ion-label>
-        <ion-select [(ngModel)]="filtroEstado" interface="popover" placeholder="Todos" class="input-filter">
-          <ion-select-option value="">Todos</ion-select-option>
-          <ion-select-option value="ACTIVA">Activa</ion-select-option>
-          <ion-select-option value="INACTIVA">Inactiva</ion-select-option>
-          <ion-select-option value="CONFIGURANDO">Configurando</ion-select-option>
-        </ion-select>
-      </ion-col>
-      <ion-col size="12" size-md="4">
-        <ion-label>Nombre de Tabla</ion-label>
-        <ion-input [(ngModel)]="filtroTabla" placeholder="ej: users, products..."></ion-input>
-      </ion-col>
-      <ion-col size="12" size-md="4">
-        <ion-label>Esquema</ion-label>
-        <ion-select [(ngModel)]="filtroEsquema" placeholder="Todos">
-          <ion-select-option value="">Todos</ion-select-option>
-          <ion-select-option *ngFor="let esquema of esquemas" [value]="esquema">{{ esquema }}</ion-select-option>
-        </ion-select>
-      </ion-col>
-      <ion-col size="12" class="ion-text-right">
-        <ion-button (click)="aplicarFiltros()">Aplicar filtros</ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+<!-- Caja de filtros mejorada -->
+<div class="filter-container">
+  <ion-card class="filter-card">
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="filter-outline" class="filter-icon"></ion-icon>
+        Filtros de Búsqueda
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row class="filter-row">
+          <ion-col size="12" size-md="3">
+            <ion-item class="filter-item">
+              <ion-label position="floating">Estado de Auditoría</ion-label>
+              <ion-select 
+                [(ngModel)]="filtroEstado" 
+                interface="popover" 
+                placeholder="Seleccionar estado"
+                class="custom-select">
+                <ion-select-option value="">Todos los estados</ion-select-option>
+                <ion-select-option value="ACTIVA">🟢 Activa</ion-select-option>
+                <ion-select-option value="INACTIVA">🔴 Inactiva</ion-select-option>
+                <ion-select-option value="CONFIGURANDO">🟡 Configurando</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-item class="filter-item">
+              <ion-label position="floating">Nombre de Tabla</ion-label>
+              <ion-input 
+                [(ngModel)]="filtroTabla" 
+                placeholder="Buscar tabla..."
+                clear-input="true"
+                type="text"
+                class="custom-input">
+              </ion-input>
+            </ion-item>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-item class="filter-item">
+              <ion-label position="floating">Esquema de BD</ion-label>
+              <ion-select 
+                [(ngModel)]="filtroEsquema" 
+                interface="popover"
+                placeholder="Seleccionar esquema"
+                class="custom-select">
+                <ion-select-option value="">Todos los esquemas</ion-select-option>
+                <ion-select-option *ngFor="let esquema of esquemas" [value]="esquema">
+                  {{ esquema }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3" class="filter-actions">
+            <div class="action-buttons">
+              <ion-button 
+                fill="solid" 
+                expand="block"
+                (click)="aplicarFiltros()"
+                class="apply-btn">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Aplicar Filtros
+              </ion-button>
+              <ion-button 
+                fill="clear" 
+                expand="block"
+                (click)="limpiarFiltros()"
+                class="clear-btn">
+                <ion-icon name="refresh-outline" slot="start"></ion-icon>
+                Limpiar
+              </ion-button>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
 </div>
 
-<!-- Tabla de resultados -->
-<div class="table-box">
-  <ion-grid>
-    <ion-row class="header-table">
-      <ion-col><strong>Nombre de Tabla</strong></ion-col>
-      <ion-col><strong># Registros</strong></ion-col>
-      <ion-col><strong>Estado Auditoría</strong></ion-col>
-      <ion-col><strong>Última Operación</strong></ion-col>
-      <ion-col><strong>Alertas</strong></ion-col>
-      <ion-col><strong>Acciones</strong></ion-col>
-    </ion-row>
+<!-- Resultados y estadísticas -->
+<div class="results-summary" *ngIf="tablaFiltrada.length > 0">
+  <ion-chip color="primary" class="result-chip">
+    <ion-icon name="list-outline"></ion-icon>
+    <ion-label>{{ tablaFiltrada.length }} tabla(s) encontrada(s)</ion-label>
+  </ion-chip>
+</div>
 
-    <ion-row *ngFor="let table of tablaFiltrada">
-      <ion-col><strong>{{ table.name }}</strong></ion-col>
-      <ion-col>{{ table.rows | number }}</ion-col>
-      <ion-col>
-        <span
-          class="audit-status"
-          [ngClass]="{
-            'status-activa': table.status === 'ACTIVA',
-            'status-inactiva': table.status === 'INACTIVA',
-            'status-configurando': table.status === 'CONFIGURANDO'
-          }"
-        >
-          {{ table.status }}
-        </span>
-      </ion-col>
-      <ion-col>{{ table.lastOp }}</ion-col>
-      <ion-col>
-        <div *ngIf="table.alerta" class="alerta">
-          <span class="icono-alerta"></span>
-          {{ table.alerta }}
-        </div>
-        <span *ngIf="!table.alerta">-</span>
-      </ion-col>
-      <ion-col>
-        <button *ngIf="table.status === 'ACTIVA'" class="boton-accion btn-configurar">Configurar</button>
-        <button *ngIf="table.status === 'ACTIVA'" class="boton-accion btn-historial">Historial</button>
-        <button *ngIf="table.status === 'ACTIVA'" class="boton-accion btn-desactivar">Desactivar</button>
-
-        <button *ngIf="table.status === 'INACTIVA'" class="boton-accion btn-activar">Activar</button>
-        <button *ngIf="table.status === 'INACTIVA'" class="boton-accion btn-ver">Ver Datos</button>
-
-        <button *ngIf="table.status === 'CONFIGURANDO'" class="boton-accion btn-ver">Ver Estado</button>
-      </ion-col>
-    </ion-row>
-
-    <ion-row *ngIf="tablaFiltrada.length === 0">
-      <ion-col size="12" class="ion-text-center text-muted">No hay resultados</ion-col>
-    </ion-row>
-  </ion-grid>
+<!-- Tabla de resultados mejorada -->
+<div class="table-container">
+  <ion-card class="table-card">
+    <ion-card-content class="table-content">
+      <!-- Tabla para desktop -->
+      <div class="desktop-table" *ngIf="!isMobile">
+        <ion-grid class="table-grid">
+          <ion-row class="table-header">
+            <ion-col size="2">
+              <strong>Tabla</strong>
+            </ion-col>
+            <ion-col size="1.5">
+              <strong>Registros</strong>
+            </ion-col>
+            <ion-col size="1.5">
+              <strong>Estado</strong>
+            </ion-col>
+            <ion-col size="2">
+              <strong>Última Operación</strong>
+            </ion-col>
+            <ion-col size="2">
+              <strong>Alertas</strong>
+            </ion-col>
+            <ion-col size="3">
+              <strong>Acciones</strong>
+            </ion-col>
+          </ion-row>
+          
+          <ion-row 
+            *ngFor="let table of tablaFiltrada; let i = index" 
+            class="table-row"
+            [class.even-row]="i % 2 === 0">
+            
+            <ion-col size="2" class="table-name">
+              <div class="name-container">
+                <ion-icon name="table-outline" class="table-icon"></ion-icon>
+                <div>
+                  <strong>{{ table.name }}</strong>
+                  <p class="schema-name">{{ table.schema }}</p>
+                </div>
+              </div>
+            </ion-col>
+            
+            <ion-col size="1.5" class="records-count">
+              <span class="number-badge">{{ table.rows | number }}</span>
+            </ion-col>
+            
+            <ion-col size="1.5">
+              <ion-badge 
+                class="status-badge"
+                [color]="getStatusColor(table.status)">
+                {{ table.status }}
+              </ion-badge>
+            </ion-col>
+            
+            <ion-col size="2" class="last-operation">
+              <div class="operation-info">
+                <span class="operation-type">{{ table.lastOp }}</span>
+                <span class="operation-time">{{ table.lastOpTime | date:'short' }}</span>
+              </div>
+            </ion-col>
+            
+            <ion-col size="2" class="alerts-column">
+              <div *ngIf="table.alerta" class="alert-container">
+                <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
+                <span class="alert-text">{{ table.alerta }}</span>
+              </div>
+              <span *ngIf="!table.alerta" class="no-alerts">Sin alertas</span>
+            </ion-col>
+            
+            <ion-col size="3" class="actions-column">
+              <div class="action-buttons-container">
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="primary"
+                  (click)="configurarTabla(table)"
+                  class="action-btn">
+                  <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="secondary"
+                  (click)="verHistorial(table)"
+                  class="action-btn">
+                  <ion-icon name="time-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+                <ion-button 
+                  size="small" 
+                  fill="outline" 
+                  color="success"
+                  (click)="verDatos(table)"
+                  class="action-btn">
+                  <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+                <ion-button 
+                  size="small" 
+                  fill="clear" 
+                  color="medium"
+                  (click)="mostrarMasAcciones(table)"
+                  class="more-actions-btn">
+                  <ion-icon name="ellipsis-vertical" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      
+      <!-- Cards para móvil -->
+      <div class="mobile-cards" *ngIf="isMobile">
+        <ion-card 
+          *ngFor="let table of tablaFiltrada" 
+          class="mobile-table-card"
+          (click)="verDetalleTabla(table)">
+          
+          <ion-card-header>
+            <div class="mobile-card-header">
+              <div class="table-info">
+                <ion-card-title>{{ table.name }}</ion-card-title>
+                <ion-card-subtitle>{{ table.schema }}</ion-card-subtitle>
+              </div>
+              <ion-badge 
+                [color]="getStatusColor(table.status)"
+                class="mobile-status-badge">
+                {{ table.status }}
+              </ion-badge>
+            </div>
+          </ion-card-header>
+          
+          <ion-card-content>
+            <div class="mobile-card-content">
+              <div class="info-row">
+                <span class="label">Registros:</span>
+                <span class="value">{{ table.rows | number }}</span>
+              </div>
+              
+              <div class="info-row">
+                <span class="label">Última Op:</span>
+                <span class="value">{{ table.lastOp }}</span>
+              </div>
+              
+              <div class="info-row" *ngIf="table.alerta">
+                <span class="label">Alerta:</span>
+                <span class="value alert-value">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  {{ table.alerta }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="mobile-actions">
+              <ion-button size="small" fill="outline" (click)="configurarTabla(table); $event.stopPropagation()">
+                Configurar
+              </ion-button>
+              <ion-button size="small" fill="clear" (click)="verHistorial(table); $event.stopPropagation()">
+                Historial
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      
+      <!-- Estado vacío -->
+      <div *ngIf="tablaFiltrada.length === 0" class="empty-state">
+        <ion-icon name="search-outline" class="empty-icon"></ion-icon>
+        <h3>No se encontraron resultados</h3>
+        <p>Intenta ajustar los filtros de búsqueda</p>
+        <ion-button fill="outline" (click)="limpiarFiltros()">
+          Limpiar filtros
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
 </div>

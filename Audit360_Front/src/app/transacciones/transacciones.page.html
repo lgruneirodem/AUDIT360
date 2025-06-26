@@ -1,40 +1,135 @@
-<ion-content class=" container ion-padding">
+<ion-content fullscreen class="container ion-padding">
+  <ion-grid>
+    <!-- Fila superior: Solicitudes y Formulario -->
+    <ion-row class="main-row">
+      <ion-col size="12" size-lg="8">
+        <!-- Lista de Solicitudes de Rollback -->
+        <ion-card class="solicitudes-card">
+          <ion-card-header>
+            <ion-card-title>Solicitudes de Rollback</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <ion-item *ngFor="let s of solicitudes" class="solicitud-item">
+                <ion-label>
+                  <h2>Tx {{ s.id_transaccion }}</h2>
+                  <p>{{ s.solicitado_por }} - {{ s.estado }}</p>
+                </ion-label>
+                <ion-button size="small" fill="outline">Ver</ion-button>
+              </ion-item>
+              <!-- Mensaje cuando no hay solicitudes -->
+              <ion-item *ngIf="!solicitudes || solicitudes.length === 0">
+                <ion-label>
+                  <p class="no-data">No hay solicitudes de rollback</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
-  <h1 class="titulo-seccion">Historial de Transacciones</h1>
-  <ion-card>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row class="header-row">
-          <ion-col><strong>Fecha</strong></ion-col>
-          <ion-col><strong>Usuario</strong></ion-col>
-          <ion-col><strong>Tipo</strong></ion-col>
-          <ion-col><strong>Tabla</strong></ion-col>
-          <ion-col><strong>ID Transacción</strong></ion-col>
-          <ion-col><strong>Rollback</strong></ion-col>
-        </ion-row>
-
-        <ion-row *ngFor="let tx of transacciones">
-          <ion-col>{{ tx.fecha }}</ion-col>
-          <ion-col>{{ tx.usuario }}</ion-col>
-          <ion-col>{{ tx.tipo }}</ion-col>
-          <ion-col>{{ tx.tabla }}</ion-col>
-          <ion-col>{{ tx.id }}</ion-col>
-          <ion-col>
-            <ion-button size="small" color="danger" (click)="simularRollback(tx)">
-              Rollback
+      <ion-col size="12" size-lg="4">
+        <!-- Solicitud de Rollback -->
+        <ion-card class="form-card solicitudes-card">
+          <ion-card-header>
+            <ion-card-title>Solicitar Rollback</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item class="form-item">
+              <ion-label position="floating">ID Transacción</ion-label>
+              <ion-input class="textArea-item"[(ngModel)]="nuevaSolicitud.id_transaccion" type="text"></ion-input>
+            </ion-item>
+            <ion-item class="form-item">
+              <ion-label class="textArea-item" position="floating">Motivo</ion-label>
+              <ion-textarea [(ngModel)]="nuevaSolicitud.motivo" rows="2" placeholder="Describe el motivo del rollback...">
+              </ion-textarea>
+            </ion-item>
+            <ion-button 
+              expand="block" 
+              (click)="solicitarRollback()" 
+              class="submit-btn">
+              Enviar Solicitud
             </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-  <ion-alert
-    [isOpen]="showAlerta"
-    header="Rollback ejecutado"
-    message="Se ha simulado la reversión de la transacción."
-    buttons="OK"
-    (didDismiss)="showAlerta = false">
-  </ion-alert>
-  
+    <!-- Segunda fila: Rollbacks ejecutados -->
+    <ion-row class="secondary-row">
+      <ion-col size="12">
+        <ion-card class="rollbacks-card">
+          <ion-card-header>
+            <ion-card-title>Rollbacks Ejecutados</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <ion-item *ngFor="let r of rollbacks" class="rollback-item">
+                <ion-label>
+                  <h2>Tx {{ r.id_transaccion }}</h2>
+                  <p>{{ r.fecha | date:'short' }} - {{ r.usuario }}</p>
+                </ion-label>
+                <ion-badge color="danger">Revertido</ion-badge>
+              </ion-item>
+              <!-- Mensaje cuando no hay rollbacks -->
+              <ion-item *ngIf="!rollbacks || rollbacks.length === 0">
+                <ion-label>
+                  <p class="no-data">No hay rollbacks ejecutados</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- Tercera fila: Comparación de Estados -->
+    <ion-row class="comparison-row" *ngIf="comparacion && comparacion.length > 0">
+      <ion-col size="12">
+        <ion-card class="comparison-card">
+          <ion-card-header>
+            <ion-card-title>Comparación de Estados</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="table-container">
+              <ion-grid class="comparison-grid">
+                <ion-row class="header-row">
+                  <ion-col size="4"><strong>Campo</strong></ion-col>
+                  <ion-col size="4"><strong>Antes</strong></ion-col>
+                  <ion-col size="4"><strong>Después</strong></ion-col>
+                </ion-row>
+                <ion-row *ngFor="let campo of comparacion" class="data-row">
+                  <ion-col size="4">{{ campo.nombre }}</ion-col>
+                  <ion-col size="4" class="old-value">{{ campo.old }}</ion-col>
+                  <ion-col size="4" class="new-value">{{ campo.new }}</ion-col>
+                </ion-row>
+              </ion-grid>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+
+    <!-- Cuarta fila: Flujo de Transacción -->
+    <ion-row class="flow-row" *ngIf="flujoTransaccion && flujoTransaccion.length > 0">
+      <ion-col size="12">
+        <ion-card class="flow-card">
+          <ion-card-header>
+            <ion-card-title>Flujo de Transacción</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list class="flow-list">
+              <ion-item *ngFor="let paso of flujoTransaccion; let i = index" class="flow-item">
+                <ion-icon [name]="paso.icono" slot="start" class="flow-icon"></ion-icon>
+                <ion-label>
+                  <h3>Paso {{ i + 1 }}</h3>
+                  <p>{{ paso.descripcion }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
