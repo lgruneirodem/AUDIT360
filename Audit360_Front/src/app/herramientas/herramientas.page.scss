@@ -1,8 +1,537 @@
-::host {
-    --ion-padding: 3rem;
-    background: #F4F4F4;
+.tools-container {
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-overlay ion-spinner {
+  margin-bottom: 1rem;
+  --color: var(--tool-primary);
+}
+
+.loading-overlay p {
+  color: var(--tool-secondary);
+  font-weight: 500;
+}
+
+/* Header */
+.tools-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 2px solid #f1f3f4;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tools-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.role-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  text-transform: uppercase;
+}
+
+.role-selector ion-select {
+  min-width: 120px;
+}
+
+/* Tarjetas de sección */
+.tools-section, .metrics-card, .stats-card, .info-card, .limitations-card {
+  margin-bottom: 2rem;
+  border-radius: var(--tool-border-radius);
+  box-shadow: var(--tool-shadow);
+  overflow: hidden;
+}
+
+.tools-section ion-card-header, 
+.metrics-card ion-card-header, 
+.stats-card ion-card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tools-section ion-card-title, 
+.metrics-card ion-card-title, 
+.stats-card ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #495057;
+  margin: 0;
+}
+
+.tools-section ion-card-title ion-icon, 
+.metrics-card ion-card-title ion-icon, 
+.stats-card ion-card-title ion-icon {
+  font-size: 1.4rem;
+  color: var(--tool-primary);
+}
+
+/* Métricas del sistema */
+.metrics-grid, .stats-grid {
+  margin: 0;
+}
+
+.metric-item, .stat-item {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border: 1px solid #e9ecef;
+  transition: var(--tool-transition);
+}
+
+.metric-item:hover, .stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.metric-value, .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--tool-primary);
+}
+
+.stat-value.primary { color: var(--tool-primary); }
+.stat-value.secondary { color: var(--tool-secondary); }
+.stat-value.success { color: var(--tool-success); }
+.stat-value.warning { color: var(--tool-warning); }
+.stat-value.danger { color: var(--tool-danger); }
+
+.metric-label, .stat-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Tarjetas de herramientas */
+.tool-card {
+  background: white;
+  border-radius: var(--tool-border-radius);
+  padding: 1.5rem;
+  text-align: center;
+  border: 2px solid #f1f3f4;
+  transition: var(--tool-transition);
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: var(--tool-primary);
+}
+
+.tool-card.featured {
+  border-color: var(--tool-success);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fff9 100%);
+}
+
+.tool-card.featured:hover {
+  border-color: var(--tool-success);
+  box-shadow: 0 8px 24px rgba(40, 167, 69, 0.3);
+}
+
+.tool-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  transition: var(--tool-transition);
+}
+
+.tool-card:hover::before {
+  background: var(--tool-primary);
+}
+
+.tool-card.featured::before {
+  background: var(--tool-success);
+}
+
+/* Iconos de herramientas */
+.tool-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  transition: var(--tool-transition);
+}
+
+.tool-icon.primary { color: var(--tool-primary); }
+.tool-icon.secondary { color: var(--tool-secondary); }
+.tool-icon.success { color: var(--tool-success); }
+.tool-icon.warning { color: var(--tool-warning); }
+.tool-icon.danger { color: var(--tool-danger); }
+
+.tool-card:hover .tool-icon {
+  transform: scale(1.1);
+}
+
+/* Texto de herramientas */
+.tool-card h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.tool-card p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+/* Badges y elementos adicionales */
+.tool-badge, .tool-status, .tool-info {
+  margin-top: 0.75rem;
+}
+
+.tool-badge ion-badge, 
+.tool-status ion-badge,
+.compliance-indicators ion-badge,
+.format-badges ion-badge {
+  font-size: 0.7rem;
+  margin: 0.2rem;
+}
+
+.tool-info small {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.compliance-indicators, .format-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+/* Tarjetas especiales */
+.info-card {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border-left: 4px solid var(--tool-primary);
+}
+
+.info-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.info-icon {
+  font-size: 2rem;
+  color: var(--tool-primary);
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.info-text h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.info-text p {
+  color: #495057;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tarjeta de limitaciones */
+.limitations-card {
+  background: linear-gradient(135deg, #fff3cd 0%, #f8d7da 100%);
+  border-left: 4px solid var(--tool-warning);
+}
+
+.limitations-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.limitations-icon {
+  font-size: 1.8rem;
+  color: var(--tool-warning);
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.limitations-text h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #856404;
+  margin-bottom: 0.75rem;
+}
+
+.limitations-text ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.limitations-text li {
+  color: #856404;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Animaciones */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  .container {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tool-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.tools-section:nth-child(1) .tool-card { animation-delay: 0.1s; }
+.tools-section:nth-child(2) .tool-card { animation-delay: 0.2s; }
+.tools-section:nth-child(3) .tool-card { animation-delay: 0.3s; }
+.tools-section:nth-child(4) .tool-card { animation-delay: 0.4s; }
+.tools-section:nth-child(5) .tool-card { animation-delay: 0.5s; }
+
+/* Efectos de hover avanzados */
+.tool-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+  transition: all 0.5s ease;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.tool-card:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Estados especiales */
+.tool-card.processing {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.tool-card.processing::before {
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tools-container {
+    padding: 0.5rem;
+  }
+  
+  .tools-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .tools-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .tool-card {
+    min-height: 160px;
+    padding: 1.25rem;
+  }
+  
+  .tool-icon {
+    font-size: 2rem;
+  }
+  
+  .tool-card h4 {
+    font-size: 1rem;
+  }
+  
+  .tool-card p {
+    font-size: 0.85rem;
+  }
+  
+  .metric-item, .stat-item {
+    padding: 0.75rem;
+  }
+  
+  .metric-value, .stat-value {
+    font-size: 1.2rem;
+  }
+  
+  .info-content, .limitations-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .info-icon, .limitations-icon {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .tools-header {
+    padding: 0.5rem 0;
+  }
+  
+  .tools-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .tool-card {
+    min-height: 140px;
     padding: 1rem;
-    margin-top: 150px;
   }
+  
+  .tool-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .tool-card h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .tool-card p {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Modo oscuro (opcional) */
+@media (prefers-color-scheme: dark) {
+  .tool-card {
+    background: #2c3e50;
+    border-color: #34495e;
+    color: #ecf0f1;
+  }
+  
+  .tool-card h4 {
+    color: #ecf0f1;
+  }
+  
+  .tool-card p {
+    color: #bdc3c7;
+  }
+  
+  .tool-card:hover {
+    border-color: var(--tool-primary);
+  }
+  
+  .metric-item, .stat-item {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    border-color: #34495e;
+    color: #ecf0f1;
+  }
+  
+  .metric-label, .stat-label {
+    color: #bdc3c7;
+  }
+}
+
+/* Transiciones suaves para cambios de estado */
+.tool-card, .metric-item, .stat-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus para accesibilidad */
+.tool-card:focus {
+  outline: 2px solid var(--tool-primary);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .tools-container {
+    padding: 0;
+  }
+  
+  .tool-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .tool-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

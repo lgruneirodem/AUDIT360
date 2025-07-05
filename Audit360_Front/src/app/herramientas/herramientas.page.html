@@ -1,28 +1,506 @@
-<ion-content class="ion-padding container">
-    <h1 class="titulo-seccion">Utilidades del sistema</h1>
+<div class="tools-container">
   
-    <ion-card>
+  <!-- Loading overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>{{ 'TOOLS.PROCESSING' | translate }}</p>
+  </div>
+
+  <!-- Header con rol -->
+  <div class="tools-header">
+    <div class="header-content">
+      <h2>{{ 'TOOLS.TITLE' | translate }}</h2>
+      <ion-badge [color]="getRoleColor()" class="role-badge">
+        {{ ('ROLES.' + userRole.toUpperCase()) | translate }}
+      </ion-badge>
+    </div>
+    
+    <!-- Selector de rol para testing -->
+    <div class="role-selector" *ngIf="userRole === 'admin'">
+      <ion-select 
+        [(ngModel)]="userRole" 
+        (ionChange)="cambiarRol($event.detail.value)"
+        placeholder="Cambiar rol">
+        <ion-select-option value="admin">Admin</ion-select-option>
+        <ion-select-option value="auditor">Auditor</ion-select-option>
+        <ion-select-option value="consultor">Consultor</ion-select-option>
+      </ion-select>
+    </div>
+  </div>
+
+  <!-- ========================================================================== -->
+  <!-- VISTA PARA ADMINISTRADOR -->
+  <!-- ========================================================================== -->
+  <div class="admin-tools" *ngIf="userRole === 'admin'">
+    
+    <!-- Métricas del Sistema -->
+    <ion-card class="metrics-card">
       <ion-card-header>
-        <ion-card-title>Acciones disponibles</ion-card-title>
+        <ion-card-title>
+          <ion-icon name="speedometer-outline"></ion-icon>
+          {{ 'TOOLS.SYSTEM_METRICS' | translate }}
+        </ion-card-title>
       </ion-card-header>
-  
       <ion-card-content>
-        <ion-list>
-          <ion-item button (click)="exportarDatos()">
-            <ion-icon name="download-outline" slot="start"></ion-icon>
-            <ion-label>Exportar base de datos</ion-label>
-          </ion-item>
-  
-          <ion-item button (click)="verConfiguracion()">
-            <ion-icon name="settings-outline" slot="start"></ion-icon>
-            <ion-label>Ver configuración del sistema</ion-label>
-          </ion-item>
-  
-          <ion-item button (click)="limpiarAuditorias()">
-            <ion-icon name="trash-outline" slot="start"></ion-icon>
-            <ion-label>Limpiar logs antiguos</ion-label>
-          </ion-item>
-        </ion-list>
+        <ion-grid class="metrics-grid">
+          <ion-row>
+            <ion-col size="6" size-md="3">
+              <div class="metric-item">
+                <div class="metric-value">{{ systemMetrics.cpuUsage }}%</div>
+                <div class="metric-label">CPU</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="metric-item">
+                <div class="metric-value">{{ systemMetrics.memoryUsage }}%</div>
+                <div class="metric-label">{{ 'TOOLS.MEMORY' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="metric-item">
+                <div class="metric-value">{{ systemMetrics.activeConnections }}</div>
+                <div class="metric-label">{{ 'TOOLS.CONNECTIONS' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="metric-item">
+                <div class="metric-value">{{ systemMetrics.totalAuditRecords | number }}</div>
+                <div class="metric-label">{{ 'TOOLS.AUDIT_RECORDS' | translate }}</div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
       </ion-card-content>
     </ion-card>
-  </ion-content>
+
+    <!-- Herramientas de Configuración del Sistema -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="settings-outline"></ion-icon>
+          {{ 'TOOLS.SYSTEM_CONFIG' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6" size-lg="4">
+              <div class="tool-card" (click)="configurarAuditoria()" [class.disabled]="!isToolAvailable('audit_config')">
+                <ion-icon name="shield-checkmark-outline" class="tool-icon primary"></ion-icon>
+                <h4>{{ 'TOOLS.AUDIT_CONFIG' | translate }}</h4>
+                <p>{{ 'TOOLS.AUDIT_CONFIG_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6" size-lg="4">
+              <div class="tool-card" (click)="gestionarTriggers()" [class.disabled]="!isToolAvailable('triggers')">
+                <ion-icon name="flash-outline" class="tool-icon warning"></ion-icon>
+                <h4>{{ 'TOOLS.TRIGGERS_MANAGEMENT' | translate }}</h4>
+                <p>{{ 'TOOLS.TRIGGERS_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6" size-lg="4">
+              <div class="tool-card" (click)="verMetricasRendimiento()" [class.disabled]="!isToolAvailable('performance')">
+                <ion-icon name="analytics-outline" class="tool-icon secondary"></ion-icon>
+                <h4>{{ 'TOOLS.PERFORMANCE_METRICS' | translate }}</h4>
+                <p>{{ 'TOOLS.PERFORMANCE_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Monitoreo Avanzado -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          {{ 'TOOLS.ADVANCED_MONITORING' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="tool-card featured" (click)="abrirClarity()" [class.disabled]="!isToolAvailable('clarity')">
+                <ion-icon name="bar-chart-outline" class="tool-icon success"></ion-icon>
+                <h4>Microsoft Clarity</h4>
+                <p>{{ 'TOOLS.CLARITY_DESC' | translate }}</p>
+                <ion-badge color="success" *ngIf="systemConfig.clarityIntegrated">
+                  {{ 'TOOLS.INTEGRATED' | translate }}
+                </ion-badge>
+                <ion-badge color="medium" *ngIf="!systemConfig.clarityIntegrated">
+                  {{ 'TOOLS.NOT_INTEGRATED' | translate }}
+                </ion-badge>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" (click)="optimizarBD()" [class.disabled]="!isToolAvailable('optimization')">
+                <ion-icon name="rocket-outline" class="tool-icon success"></ion-icon>
+                <h4>{{ 'TOOLS.DB_OPTIMIZATION' | translate }}</h4>
+                <p>{{ 'TOOLS.DB_OPTIMIZATION_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Administración de Datos -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="server-outline"></ion-icon>
+          {{ 'TOOLS.DATA_ADMIN' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="4">
+              <div class="tool-card" (click)="limpiezaAutomatica()" [class.disabled]="!isToolAvailable('cleanup')">
+                <ion-icon name="trash-outline" class="tool-icon danger"></ion-icon>
+                <h4>{{ 'TOOLS.AUTO_CLEANUP' | translate }}</h4>
+                <p>{{ 'TOOLS.AUTO_CLEANUP_DESC' | translate }}</p>
+                <div class="tool-status">
+                  <ion-badge [color]="systemConfig.autoCleanupEnabled ? 'success' : 'medium'">
+                    {{ systemConfig.autoCleanupEnabled ? ('TOOLS.ENABLED' | translate) : ('TOOLS.DISABLED' | translate) }}
+                  </ion-badge>
+                </div>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="4">
+              <div class="tool-card" (click)="backupConfig()" [class.disabled]="!isToolAvailable('backup')">
+                <ion-icon name="cloud-download-outline" class="tool-icon secondary"></ion-icon>
+                <h4>{{ 'TOOLS.BACKUP_CONFIG' | translate }}</h4>
+                <p>{{ 'TOOLS.BACKUP_DESC' | translate }}</p>
+                <div class="tool-info">
+                  <small>{{ 'TOOLS.FREQUENCY' | translate }}: {{ systemConfig.backupFrequency | titlecase }}</small>
+                </div>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="4">
+              <div class="tool-card" (click)="gestionarTriggers()" [class.disabled]="!isToolAvailable('sessions')">
+                <ion-icon name="people-outline" class="tool-icon warning"></ion-icon>
+                <h4>{{ 'TOOLS.SESSION_AUDIT' | translate }}</h4>
+                <p>{{ 'TOOLS.SESSION_AUDIT_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <!-- ========================================================================== -->
+  <!-- VISTA PARA AUDITOR -->
+  <!-- ========================================================================== -->
+  <div class="auditor-tools" *ngIf="userRole === 'auditor'">
+    
+    <!-- Estadísticas de Auditoría -->
+    <ion-card class="stats-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="pie-chart-outline"></ion-icon>
+          {{ 'TOOLS.AUDIT_STATS' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid class="stats-grid">
+          <ion-row>
+            <ion-col size="6" size-md="3">
+              <div class="stat-item">
+                <div class="stat-value danger">{{ auditStats.totalAnomalies }}</div>
+                <div class="stat-label">{{ 'TOOLS.ANOMALIES' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="stat-item">
+                <div class="stat-value success">{{ auditStats.complianceScore }}%</div>
+                <div class="stat-label">{{ 'TOOLS.COMPLIANCE' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="stat-item">
+                <div class="stat-value primary">{{ auditStats.trendsDetected }}</div>
+                <div class="stat-label">{{ 'TOOLS.TRENDS' | translate }}</div>
+              </div>
+            </ion-col>
+            <ion-col size="6" size-md="3">
+              <div class="stat-item">
+                <div class="stat-value secondary">94.2%</div>
+                <div class="stat-label">{{ 'TOOLS.AI_ACCURACY' | translate }}</div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Análisis -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="analytics-outline"></ion-icon>
+          {{ 'TOOLS.ANALYSIS_TOOLS' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6" size-lg="4">
+              <div class="tool-card" (click)="analizadorTendencias()" [class.disabled]="!isToolAvailable('trends')">
+                <ion-icon name="trending-up-outline" class="tool-icon success"></ion-icon>
+                <h4>{{ 'TOOLS.TREND_ANALYZER' | translate }}</h4>
+                <p>{{ 'TOOLS.TREND_ANALYZER_DESC' | translate }}</p>
+                <div class="tool-badge">
+                  <ion-badge color="success">IA</ion-badge>
+                </div>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6" size-lg="4">
+              <div class="tool-card" (click)="comparadorPeriodos()" [class.disabled]="!isToolAvailable('comparator')">
+                <ion-icon name="git-compare-outline" class="tool-icon primary"></ion-icon>
+                <h4>{{ 'TOOLS.PERIOD_COMPARATOR' | translate }}</h4>
+                <p>{{ 'TOOLS.PERIOD_COMPARATOR_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6" size-lg="4">
+              <div class="tool-card featured" (click)="detectorAnomalias()" [class.disabled]="!isToolAvailable('anomalies')">
+                <ion-icon name="warning-outline" class="tool-icon warning"></ion-icon>
+                <h4>{{ 'TOOLS.ANOMALY_DETECTOR' | translate }}</h4>
+                <p>{{ 'TOOLS.ANOMALY_DETECTOR_DESC' | translate }}</p>
+                <div class="tool-badge">
+                  <ion-badge color="warning">IA</ion-badge>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Reportes -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="document-text-outline"></ion-icon>
+          {{ 'TOOLS.REPORTING_TOOLS' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="tool-card featured" (click)="generadorReportesIA()" [class.disabled]="!isToolAvailable('ai_reports')">
+                <ion-icon name="sparkles-outline" class="tool-icon success"></ion-icon>
+                <h4>{{ 'TOOLS.AI_REPORT_GENERATOR' | translate }}</h4>
+                <p>{{ 'TOOLS.AI_REPORT_DESC' | translate }}</p>
+                <div class="tool-badge">
+                  <ion-badge color="success">OpenAI</ion-badge>
+                </div>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" [class.disabled]="!isToolAvailable('templates')">
+                <ion-icon name="copy-outline" class="tool-icon secondary"></ion-icon>
+                <h4>{{ 'TOOLS.REPORT_TEMPLATES' | translate }}</h4>
+                <p>{{ 'TOOLS.REPORT_TEMPLATES_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Verificación -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="checkmark-done-outline"></ion-icon>
+          {{ 'TOOLS.VERIFICATION_TOOLS' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="4">
+              <div class="tool-card"  [class.disabled]="!isToolAvailable('integrity')">
+                <ion-icon name="shield-outline" class="tool-icon primary"></ion-icon>
+                <h4>{{ 'TOOLS.INTEGRITY_VALIDATOR' | translate }}</h4>
+                <p>{{ 'TOOLS.INTEGRITY_VALIDATOR_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="4">
+              <div class="tool-card" (click)="verificadorCumplimiento()" [class.disabled]="!isToolAvailable('compliance')">
+                <ion-icon name="document-attach-outline" class="tool-icon success"></ion-icon>
+                <h4>{{ 'TOOLS.COMPLIANCE_CHECKER' | translate }}</h4>
+                <p>{{ 'TOOLS.COMPLIANCE_CHECKER_DESC' | translate }}</p>
+                <div class="compliance-indicators">
+                  <ion-badge color="success" size="small">GDPR</ion-badge>
+                  <ion-badge color="success" size="small">LOPD</ion-badge>
+                  <ion-badge color="warning" size="small">SOX</ion-badge>
+                </div>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="4">
+              <div class="tool-card"  [class.disabled]="!isToolAvailable('cross_audit')">
+                <ion-icon name="git-network-outline" class="tool-icon secondary"></ion-icon>
+                <h4>{{ 'TOOLS.CROSS_AUDIT' | translate }}</h4>
+                <p>{{ 'TOOLS.CROSS_AUDIT_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Consulta Avanzada -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="search-outline"></ion-icon>
+          {{ 'TOOLS.ADVANCED_QUERY' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" [class.disabled]="!isToolAvailable('query_builder')">
+                <ion-icon name="build-outline" class="tool-icon primary"></ion-icon>
+                <h4>{{ 'TOOLS.QUERY_BUILDER' | translate }}</h4>
+                <p>{{ 'TOOLS.QUERY_BUILDER_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" [class.disabled]="!isToolAvailable('explorer')">
+                <ion-icon name="telescope-outline" class="tool-icon secondary"></ion-icon>
+                <h4>{{ 'TOOLS.AUDIT360_EXPLORER' | translate }}</h4>
+                <p>{{ 'TOOLS.AUDIT360_EXPLORER_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <!-- ========================================================================== -->
+  <!-- VISTA PARA CONSULTOR -->
+  <!-- ========================================================================== -->
+  <div class="consultant-tools" *ngIf="userRole === 'consultor'">
+    
+    <!-- Información del rol -->
+    <ion-card class="info-card">
+      <ion-card-content>
+        <div class="info-content">
+          <ion-icon name="information-circle-outline" class="info-icon"></ion-icon>
+          <div class="info-text">
+            <h4>{{ 'TOOLS.CONSULTANT_WELCOME' | translate }}</h4>
+            <p>{{ 'TOOLS.CONSULTANT_DESCRIPTION' | translate }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Consulta -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="library-outline"></ion-icon>
+          {{ 'TOOLS.CONSULTATION_TOOLS' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" (click)="buscadorAvanzado()" [class.disabled]="!isToolAvailable('search')">
+                <ion-icon name="search-outline" class="tool-icon primary"></ion-icon>
+                <h4>{{ 'TOOLS.ADVANCED_SEARCH' | translate }}</h4>
+                <p>{{ 'TOOLS.ADVANCED_SEARCH_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" (click)="exportadorDatos()" [class.disabled]="!isToolAvailable('export')">
+                <ion-icon name="download-outline" class="tool-icon success"></ion-icon>
+                <h4>{{ 'TOOLS.DATA_EXPORTER' | translate }}</h4>
+                <p>{{ 'TOOLS.DATA_EXPORTER_DESC' | translate }}</p>
+                <div class="format-badges">
+                  <ion-badge color="tertiary" size="small">PDF</ion-badge>
+                  <ion-badge color="tertiary" size="small">Excel</ion-badge>
+                  <ion-badge color="tertiary" size="small">CSV</ion-badge>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Herramientas de Visualización -->
+    <ion-card class="tools-section">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="eye-outline"></ion-icon>
+          {{ 'TOOLS.VISUALIZATION_TOOLS' | translate }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" [class.disabled]="!isToolAvailable('charts')">
+                <ion-icon name="bar-chart-outline" class="tool-icon secondary"></ion-icon>
+                <h4>{{ 'TOOLS.CHART_GENERATOR' | translate }}</h4>
+                <p>{{ 'TOOLS.CHART_GENERATOR_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6">
+              <div class="tool-card" [class.disabled]="!isToolAvailable('timeline')">
+                <ion-icon name="time-outline" class="tool-icon primary"></ion-icon>
+                <h4>{{ 'TOOLS.TIMELINE_VIEWER' | translate }}</h4>
+                <p>{{ 'TOOLS.TIMELINE_VIEWER_DESC' | translate }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Limitaciones del rol -->
+    <ion-card class="limitations-card">
+      <ion-card-content>
+        <div class="limitations-content">
+          <ion-icon name="lock-closed-outline" class="limitations-icon"></ion-icon>
+          <div class="limitations-text">
+            <h5>{{ 'TOOLS.ACCESS_LIMITATIONS' | translate }}</h5>
+            <ul>
+              <li>{{ 'TOOLS.LIMITATION_1' | translate }}</li>
+              <li>{{ 'TOOLS.LIMITATION_2' | translate }}</li>
+              <li>{{ 'TOOLS.LIMITATION_3' | translate }}</li>
+            </ul>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+</div>

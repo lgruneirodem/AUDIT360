@@ -1,24 +1,5 @@
 <!-- Contenedor principal de logs y monitoreo -->
 <div class="logs-container">
-  
-  <!-- Pestañas de navegación -->
-  <div class="tabs-container">
-    <ion-segment [(ngModel)]="tabActiva" (ionChange)="cambiarTab($event)">
-      <ion-segment-button value="gestion">
-        <ion-icon name="settings-outline"></ion-icon>
-        <ion-label>Gestión de Auditoría</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="historial">
-        <ion-icon name="time-outline"></ion-icon>
-        <ion-label>Historial y Análisis</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="logs">
-        <ion-icon name="list-outline"></ion-icon>
-        <ion-label>Logs y Monitoreo</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </div>
-
   <!-- Contenido de la pestaña Logs y Monitoreo -->
   <div class="tab-content" *ngIf="tabActiva === 'logs'">
     
