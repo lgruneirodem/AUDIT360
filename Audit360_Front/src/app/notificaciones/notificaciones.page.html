@@ -15,8 +15,11 @@
               <ion-item routerLink="/notificaciones" routerDirection="root" class="active">
                 <ion-label>Notificaciones</ion-label>
               </ion-item>
-              <ion-item button class="delete-account">
-                <ion-label>Eliminar cuenta </ion-label>
+              <ion-item routerLink="/gestion-usuarios" routerDirection="root" >
+                <ion-label>Gestion de usuarios</ion-label>
+              </ion-item>
+              <ion-item button class="delete-account" (click)="onLogout()">
+                <ion-label>Cerrar sesión </ion-label>
               </ion-item>
             </ion-list>
           </div>

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ApproveRollbackAPIView, CreateRollbackRequestAPIView, DashboardTablaView, HistorialViewSet, ListRollbackRequestsAPIView
+from .views import ApproveRollbackAPIView, CreateRollbackRequestAPIView, CustomTokenObtainPairView, DashboardTablaView, ExecuteRollbackAPIView, GestionAuditoriaAPIView, HistorialViewSet, ListRollbackRequestsAPIView
 from .views import ActividadPorPeriodoView
 from .views import DashboardResumenView
 from .views import TablaAuditadaListView
@@ -17,16 +17,17 @@ router.register(r'historial', HistorialViewSet, basename='historial')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-
+    path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('actividad-periodo/', ActividadPorPeriodoView.as_view()),
     path('dashboard-resumen/', DashboardResumenView.as_view()),
+    path('gestion-auditoria/', GestionAuditoriaAPIView.as_view()),
     path('logs/', SystemLogAPIView.as_view(), name='logs-por-rol'),
     path('crear-auditoria/', CrearAuditoriaView.as_view(), name='crear-auditoria'),
     path('tabla-resumen/', DashboardTablaView.as_view()),
-     path('rollback/create/', CreateRollbackRequestAPIView.as_view()),
+    path('rollback/ExecuteRollbackAPIView/<int:id_transaccion>/',  ExecuteRollbackAPIView.as_view(), name='ejecutar'),
+    path('rollback/create/', CreateRollbackRequestAPIView.as_view()),
     path('rollback/list/', ListRollbackRequestsAPIView.as_view()),
     path('rollback/approve/<int:request_id>/', ApproveRollbackAPIView.as_view()),
     path('tablas-auditadas/', TablaAuditadaListView.as_view(), name='listar_tablas_auditadas'),

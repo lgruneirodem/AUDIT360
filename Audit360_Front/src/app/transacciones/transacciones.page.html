@@ -6,21 +6,112 @@
         <!-- Lista de Solicitudes de Rollback -->
         <ion-card class="solicitudes-card">
           <ion-card-header>
-            <ion-card-title>Solicitudes de Rollback</ion-card-title>
+            <ion-card-title>
+              Solicitudes de Rollback
+              <ion-badge color="primary" *ngIf="solicitudes.length > 0">
+                {{ solicitudes.length }}
+              </ion-badge>
+            </ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <ion-list>
-              <ion-item *ngFor="let s of solicitudes" class="solicitud-item">
+            <!-- Loading spinner -->
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            
+            <ion-list *ngIf="!isLoading">
+              <ion-item *ngFor="let solicitud of solicitudes" class="solicitud-item">
                 <ion-label>
-                  <h2>Tx {{ s.id_transaccion }}</h2>
-                  <p>{{ s.solicitado_por }} - {{ s.estado }}</p>
+                  <h2>ID Transacción: {{ solicitud.transaction_id }}</h2>
+                  <h3>Tabla: {{ solicitud.table_name }}</h3>
+                  <p>Usuario: {{ getNombreCompleto(solicitud.user_request) }}</p>
+                  <p>Motivo: {{ solicitud.motivo }}</p>
+                  <p class="fecha-info">
+                    <small>
+                      Creado: {{ solicitud.created_at_formatted || formatearFecha(solicitud.created_at) }}
+                      <span *ngIf="solicitud.approved_at_formatted">
+                        | Procesado: {{ solicitud.approved_at_formatted }}
+                      </span>
+                    </small>
+                  </p>
                 </ion-label>
-                <ion-button size="small" fill="outline">Ver</ion-button>
+                
+                <!-- Estado de la solicitud -->
+                <ion-badge 
+                  slot="end" 
+                  [color]="getStatusColor(solicitud.status)"
+                  class="status-badge">
+                  {{ solicitud.status_display || getStatusText(solicitud.status) }}
+                </ion-badge>
+                
+                <!-- Botones de acción -->
+                <div slot="end" class="action-buttons" *ngIf="puedeGestionar()">
+                  <!-- Aprobar -->
+                  <ion-button 
+                    color="success" 
+                    size="small"
+                    (click)="aprobar(solicitud.id)" 
+                    *ngIf="solicitud.status === 'PENDING'">
+                    Aprobar
+                  </ion-button>
+                  
+                  <!-- Rechazar -->
+                  <ion-button 
+                    color="danger" 
+                    size="small"
+                    (click)="rechazar(solicitud.id)" 
+                    *ngIf="solicitud.status === 'PENDING'">
+                    Rechazar
+                  </ion-button>
+                  
+                  <!-- Ejecutar -->
+                  <ion-button 
+                    color="warning" 
+                    size="small"
+                    (click)="ejecutarRollback(solicitud.id)" 
+                    *ngIf="solicitud.status === 'APPROVED'">
+                    Ejecutar
+                  </ion-button>
+                </div>
               </ion-item>
+              
               <!-- Mensaje cuando no hay solicitudes -->
               <ion-item *ngIf="!solicitudes || solicitudes.length === 0">
                 <ion-label>
                   <p class="no-data">No hay solicitudes de rollback</p>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="rollbacks-card">
+          <ion-card-header>
+            <ion-card-title>Rollbacks Ejecutados</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <ion-item *ngFor="let rollback of rollbacks" class="rollback-item">
+                <ion-label>
+                  <h2>Tx {{ rollback.transaction_id }}</h2>
+                  <h3>Tabla: {{ rollback.table_name }}</h3>
+                  <p>
+                    {{ rollback.executed_at_formatted || formatearFecha(rollback.executed_at) }} 
+                    - {{ getNombreCompleto(rollback.executed_by) }}
+                  </p>
+                  <p *ngIf="rollback.error_message" class="error-text">
+                    Error: {{ rollback.error_message }}
+                  </p>
+                </ion-label>
+                <ion-badge 
+                  [color]="rollback.success ? 'success' : 'danger'"
+                  slot="end">
+                  {{ rollback.success ? 'Exitoso' : 'Fallido' }}
+                </ion-badge>
+              </ion-item>
+              
+              <!-- Mensaje cuando no hay rollbacks -->
+              <ion-item *ngIf="!rollbacks || rollbacks.length === 0">
+                <ion-label>
+                  <p class="no-data">No hay rollbacks ejecutados</p>
                 </ion-label>
               </ion-item>
             </ion-list>
@@ -35,47 +126,92 @@
             <ion-card-title>Solicitar Rollback</ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <ion-item class="form-item">
-              <ion-label position="floating">ID Transacción</ion-label>
-              <ion-input class="textArea-item"[(ngModel)]="nuevaSolicitud.id_transaccion" type="text"></ion-input>
-            </ion-item>
-            <ion-item class="form-item">
-              <ion-label class="textArea-item" position="floating">Motivo</ion-label>
-              <ion-textarea [(ngModel)]="nuevaSolicitud.motivo" rows="2" placeholder="Describe el motivo del rollback...">
-              </ion-textarea>
-            </ion-item>
-            <ion-button 
-              expand="block" 
-              (click)="solicitarRollback()" 
-              class="submit-btn">
-              Enviar Solicitud
-            </ion-button>
+            <form #rollbackForm="ngForm">
+              <!-- ID de Transacción -->
+              <ion-item class="form-item">
+                <ion-label position="floating">ID Transacción *</ion-label>
+                <ion-input 
+                  [(ngModel)]="nuevaSolicitud.transaction_id" 
+                  name="id_transaccion"
+                  type="text"
+                  required
+                  #transactionId="ngModel">
+                </ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="transactionId.invalid && transactionId.touched">
+                El ID de transacción es requerido
+              </div>
+
+              <!-- Nombre de Tabla -->
+              <ion-item class="form-item">
+                <ion-label position="floating">Tabla *</ion-label>
+                <ion-input 
+                  [(ngModel)]="nuevaSolicitud.table_name" 
+                  name="table_name"
+                  type="text"
+                  required
+                  #tableName="ngModel">
+                </ion-input>
+              </ion-item>
+              <div class="error-message" *ngIf="tableName.invalid && tableName.touched">
+                El nombre de la tabla es requerido
+              </div>
+
+              <!-- Motivo -->
+              <ion-item class="form-item">
+                <ion-label position="floating">Motivo *</ion-label>
+                <ion-textarea 
+                  [(ngModel)]="nuevaSolicitud.motivo" 
+                  name="motivo"
+                  rows="3" 
+                  placeholder="Describe detalladamente el motivo del rollback..."
+                  required
+                  #motivo="ngModel">
+                </ion-textarea>
+              </ion-item>
+              <div class="error-message" *ngIf="motivo.invalid && motivo.touched">
+                El motivo es requerido (mínimo 10 caracteres)
+              </div>
+
+              <!-- Botón de envío -->
+              <ion-button 
+                expand="block" 
+                (click)="solicitarRollback()" 
+                [disabled]="rollbackForm.invalid || isLoading"
+                class="submit-btn">
+                <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+                <span *ngIf="!isLoading">Enviar Solicitud</span>
+              </ion-button>
+            </form>
           </ion-card-content>
         </ion-card>
-      </ion-col>
-    </ion-row>
 
-    <!-- Segunda fila: Rollbacks ejecutados -->
-    <ion-row class="secondary-row">
-      <ion-col size="12">
-        <ion-card class="rollbacks-card">
+        <!-- Estadísticas -->
+        <ion-card class="stats-card" *ngIf="solicitudes.length > 0">
           <ion-card-header>
-            <ion-card-title>Rollbacks Ejecutados</ion-card-title>
+            <ion-card-title>Estadísticas</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <ion-list>
-              <ion-item *ngFor="let r of rollbacks" class="rollback-item">
-                <ion-label>
-                  <h2>Tx {{ r.id_transaccion }}</h2>
-                  <p>{{ r.fecha | date:'short' }} - {{ r.usuario }}</p>
-                </ion-label>
-                <ion-badge color="danger">Revertido</ion-badge>
+              <ion-item>
+                <ion-label>Total</ion-label>
+                <ion-badge color="medium">{{ getConteoEstados().total }}</ion-badge>
               </ion-item>
-              <!-- Mensaje cuando no hay rollbacks -->
-              <ion-item *ngIf="!rollbacks || rollbacks.length === 0">
-                <ion-label>
-                  <p class="no-data">No hay rollbacks ejecutados</p>
-                </ion-label>
+              <ion-item>
+                <ion-label>Pendientes</ion-label>
+                <ion-badge color="warning">{{ getConteoEstados().pending }}</ion-badge>
+              </ion-item>
+              <ion-item>
+                <ion-label>Aprobadas</ion-label>
+                <ion-badge color="success">{{ getConteoEstados().approved }}</ion-badge>
+              </ion-item>
+              <ion-item>
+                <ion-label>Rechazadas</ion-label>
+                <ion-badge color="danger">{{ getConteoEstados().rejected }}</ion-badge>
+              </ion-item>
+              <ion-item>
+                <ion-label>Ejecutadas</ion-label>
+                <ion-badge color="primary">{{ getConteoEstados().executed }}</ion-badge>
               </ion-item>
             </ion-list>
           </ion-card-content>
@@ -83,53 +219,5 @@
       </ion-col>
     </ion-row>
 
-    <!-- Tercera fila: Comparación de Estados -->
-    <ion-row class="comparison-row" *ngIf="comparacion && comparacion.length > 0">
-      <ion-col size="12">
-        <ion-card class="comparison-card">
-          <ion-card-header>
-            <ion-card-title>Comparación de Estados</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="table-container">
-              <ion-grid class="comparison-grid">
-                <ion-row class="header-row">
-                  <ion-col size="4"><strong>Campo</strong></ion-col>
-                  <ion-col size="4"><strong>Antes</strong></ion-col>
-                  <ion-col size="4"><strong>Después</strong></ion-col>
-                </ion-row>
-                <ion-row *ngFor="let campo of comparacion" class="data-row">
-                  <ion-col size="4">{{ campo.nombre }}</ion-col>
-                  <ion-col size="4" class="old-value">{{ campo.old }}</ion-col>
-                  <ion-col size="4" class="new-value">{{ campo.new }}</ion-col>
-                </ion-row>
-              </ion-grid>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-
-    <!-- Cuarta fila: Flujo de Transacción -->
-    <ion-row class="flow-row" *ngIf="flujoTransaccion && flujoTransaccion.length > 0">
-      <ion-col size="12">
-        <ion-card class="flow-card">
-          <ion-card-header>
-            <ion-card-title>Flujo de Transacción</ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <ion-list class="flow-list">
-              <ion-item *ngFor="let paso of flujoTransaccion; let i = index" class="flow-item">
-                <ion-icon [name]="paso.icono" slot="start" class="flow-icon"></ion-icon>
-                <ion-label>
-                  <h3>Paso {{ i + 1 }}</h3>
-                  <p>{{ paso.descripcion }}</p>
-                </ion-label>
-              </ion-item>
-            </ion-list>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
   </ion-grid>
 </ion-content>

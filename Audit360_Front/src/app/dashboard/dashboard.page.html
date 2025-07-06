@@ -23,6 +23,9 @@
       <ion-segment-button value="logs">
         <ion-label>Log y Monitorización</ion-label>
       </ion-segment-button>
+      <ion-segment-button value="tablas">
+        <ion-label>Administración de tablas</ion-label>
+      </ion-segment-button>
     </ion-segment>
 
     <div [ngSwitch]="tablaSeleccionada">
@@ -33,9 +36,12 @@
       <ng-container *ngSwitchCase="'logs'">
         <app-tabla-logs [tabla]="tablaSeleccionada"></app-tabla-logs>
       </ng-container>
+      
+      <ng-container *ngSwitchCase="'tablas'">
+        <app-tabla-tablas [tabla]="tablaSeleccionada"></app-tabla-tablas>
+      </ng-container>
     </div>
 
-    
 
   </div>
 </ion-content>

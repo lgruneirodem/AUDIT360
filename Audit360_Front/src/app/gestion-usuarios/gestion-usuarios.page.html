@@ -1,0 +1,344 @@
+<ion-content>
+  <ion-grid class="container ion-padding">
+    <ion-row>
+      <!-- Sidebar -->
+      <ion-col size="12" size-md="3">
+        <div class="sidebar">
+          <div class="sidebar-container">
+            <ion-list lines="none">
+              <ion-item routerLink="/configuracion" routerDirection="root">
+                <ion-label>Mi perfil</ion-label>
+              </ion-item>
+              <ion-item routerLink="/cuenta" routerDirection="root">
+                <ion-label>Cuenta</ion-label>
+              </ion-item>
+              <ion-item routerLink="/notificaciones" routerDirection="root">
+                <ion-label>Notificaciones</ion-label>
+              </ion-item>
+              <ion-item routerLink="/gestion-usuarios" routerDirection="root" class="active">
+                <ion-label>Gestión de usuarios</ion-label>
+              </ion-item>
+              <ion-item button class="delete-account" (click)="onLogout()">
+                <ion-label>Cerrar sesión</ion-label>
+              </ion-item>
+             
+            </ion-list>
+          </div>
+        </div>
+      </ion-col>
+
+      <!-- Main panel -->
+      <ion-col size="12" size-md="9" class="main-panel">
+        <div class="user-management-section">
+          <!-- Header -->
+          <div class="section-header">
+            <h1>Gestión de usuarios</h1>
+            <p>Administra los usuarios y permisos del sistema</p>
+          </div>
+
+          <!-- Estadísticas -->
+          <div class="stats-container">
+            <div class="stat-card">
+              <ion-icon name="people-outline" class="stat-icon"></ion-icon>
+              <div class="stat-info">
+                <h3>{{ totalUsers }}</h3>
+                <p>Total usuarios</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <ion-icon name="checkmark-circle-outline" class="stat-icon active"></ion-icon>
+              <div class="stat-info">
+                <h3>{{ activeUsers }}</h3>
+                <p>Activos</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <ion-icon name="time-outline" class="stat-icon pending"></ion-icon>
+              <div class="stat-info">
+                <h3>{{ pendingUsers }}</h3>
+                <p>Pendientes</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="actions-container">
+            <ion-button 
+              expand="block" 
+              class="create-user-btn"
+              (click)="openCreateUserModal()">
+              <ion-icon name="add" slot="start"></ion-icon>
+              Crear nuevo usuario
+            </ion-button>
+          </div>
+
+          <!-- Filtros -->
+          <div class="filters-container">
+            <ion-searchbar 
+              [(ngModel)]="searchTerm"
+              placeholder="Buscar usuarios..."
+              (ionInput)="filterUsers()"
+              class="custom-searchbar">
+            </ion-searchbar>
+            
+            <ion-segment 
+              [(ngModel)]="filterStatus"
+              (ionChange)="filterUsers()"
+              class="status-filter">
+              <ion-segment-button value="all">
+                <ion-label>Todos</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="active">
+                <ion-label>Activos</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="inactive">
+                <ion-label>Inactivos</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          </div>
+
+          <!-- Lista de usuarios -->
+          <div class="users-container">
+            <ion-card *ngFor="let user of filteredUsers" class="user-card">
+              <ion-card-content>
+                <div class="user-row">
+                  <div class="user-avatar">
+                    <img [src]="user.avatar || 'assets/cuentapng'" [alt]="user.name">
+                  </div>
+                  
+                  <div class="user-info">
+                    <h3>{{ user.name }}</h3>
+                    <p class="user-email">{{ user.email }}</p>
+                    <div class="user-meta">
+                      <ion-chip [color]="getStatusColor(user.status)" class="status-chip">
+                        {{ getStatusText(user.status) }}
+                      </ion-chip>
+                      <span class="user-role">{{ getRoleText(user.role) }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="user-actions">
+                    <ion-button 
+                      fill="clear" 
+                      size="small"
+                      (click)="editUser(user)"
+                      class="action-btn">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button 
+                      fill="clear" 
+                      size="small"
+                      color="danger"
+                      (click)="confirmDelete(user)"
+                      class="action-btn">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+                
+                <div class="user-details" *ngIf="user.department || user.createdAt || user.lastLogin">
+                  <div class="detail-item" *ngIf="user.department">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                    <span>{{ getDepartmentText(user.department) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Creado: {{ user.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                  <div class="detail-item" *ngIf="user.lastLogin">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>Último acceso: {{ user.lastLogin | date:'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Modal para crear/editar usuario -->
+  <ion-modal 
+    [isOpen]="isModalOpen" 
+    (didDismiss)="closeModal()"
+    class="user-modal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ isEditing ? 'Editar usuario' : 'Crear usuario' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content class="modal-content">
+        <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+          <!-- Avatar -->
+          <div class="avatar-section">
+            <div class="avatar-preview">
+              <img [src]="previewAvatar || 'assets/default-avatar.png'" alt="Avatar preview">
+            </div>
+            <ion-button fill="outline" size="small" (click)="selectAvatar()">
+              <ion-icon name="camera-outline" slot="start"></ion-icon>
+              Cambiar foto
+            </ion-button>
+          </div>
+
+          <!-- Información personal -->
+          <div class="form-section">
+            <h4>Información personal</h4>
+            
+            <ion-item class="form-item">
+              <ion-label position="stacked">Nombre completo *</ion-label>
+              <ion-input 
+                formControlName="name"
+                placeholder="Ingresa el nombre completo"
+                [class.error]="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+              </ion-input>
+            </ion-item>
+            <div class="error-text" *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+              El nombre es requerido
+            </div>
+
+            <ion-item class="form-item">
+              <ion-label position="stacked">Correo electrónico *</ion-label>
+              <ion-input 
+                type="email"
+                formControlName="email"
+                placeholder="usuario@empresa.com"
+                [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+              </ion-input>
+            </ion-item>
+            <div class="error-text" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+              <span *ngIf="userForm.get('email')?.errors?.['required']">El correo es requerido</span>
+              <span *ngIf="userForm.get('email')?.errors?.['email']">Ingresa un correo válido</span>
+            </div>
+
+            <ion-item class="form-item">
+              <ion-label position="stacked">Teléfono</ion-label>
+              <ion-input 
+                type="tel"
+                formControlName="phone"
+                placeholder="+34 123 456 789">
+              </ion-input>
+            </ion-item>
+          </div>
+
+          <!-- Información laboral -->
+          <div class="form-section">
+            <h4>Información laboral</h4>
+            
+            <ion-item class="form-item">
+              <ion-label position="stacked">Rol *</ion-label>
+              <ion-select 
+                formControlName="role"
+                placeholder="Selecciona un rol">
+                <ion-select-option value="admin">Administrador</ion-select-option>
+                <ion-select-option value="auditor">Auditor</ion-select-option>
+                <ion-select-option value="analyst">Analista</ion-select-option>
+                <ion-select-option value="viewer">Visualizador</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="form-item">
+              <ion-label position="stacked">Departamento</ion-label>
+              <ion-select 
+                formControlName="department"
+                placeholder="Selecciona departamento">
+                <ion-select-option value="audit">Auditoría</ion-select-option>
+                <ion-select-option value="finance">Finanzas</ion-select-option>
+                <ion-select-option value="it">Tecnología</ion-select-option>
+                <ion-select-option value="hr">Recursos Humanos</ion-select-option>
+                <ion-select-option value="operations">Operaciones</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="form-item">
+              <ion-label position="stacked">Estado</ion-label>
+              <ion-select 
+                formControlName="status"
+                placeholder="Selecciona estado">
+                <ion-select-option value="active">Activo</ion-select-option>
+                <ion-select-option value="inactive">Inactivo</ion-select-option>
+                <ion-select-option value="pending">Pendiente</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <!-- Contraseña (solo para nuevo usuario) -->
+          <div class="form-section" *ngIf="!isEditing">
+            <h4>Credenciales de acceso</h4>
+            
+            <ion-item class="form-item">
+              <ion-label position="stacked">Contraseña temporal *</ion-label>
+              <ion-input 
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+                [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+                <ion-button 
+                  fill="clear" 
+                  slot="end" 
+                  (click)="togglePassword()">
+                  <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+                </ion-button>
+              </ion-input>
+            </ion-item>
+            <div class="error-text" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+              La contraseña debe tener al menos 8 caracteres
+            </div>
+
+            <ion-item lines="none">
+              <ion-checkbox formControlName="sendCredentials"></ion-checkbox>
+              <ion-label class="checkbox-label">
+                Enviar credenciales por correo electrónico
+              </ion-label>
+            </ion-item>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="action-buttons">
+            <ion-button 
+              type="button"
+              fill="outline" 
+              expand="block"
+              (click)="closeModal()">
+              Cancelar
+            </ion-button>
+            <ion-button 
+              type="submit"
+              expand="block"
+              [disabled]="userForm.invalid || isLoading"
+              class="save-btn">
+              <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+              {{ isLoading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear usuario') }}
+            </ion-button>
+          </div>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Toast para mensajes -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [color]="toastColor"
+    duration="3000"
+    position="top"
+    (didDismiss)="showToast = false">
+  </ion-toast>
+
+  <!-- Alert para confirmaciones -->
+  <ion-alert
+    [isOpen]="showAlert"
+    [header]="alertHeader"
+    [message]="alertMessage"
+    [buttons]="alertButtons"
+    (didDismiss)="showAlert = false">
+  </ion-alert>
+</ion-content>

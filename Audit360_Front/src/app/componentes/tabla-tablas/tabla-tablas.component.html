@@ -1,85 +1,38 @@
 <!-- Caja de filtros mejorada -->
-<div class="filter-container">
-  <ion-card class="filter-card">
-    <ion-card-header>
-      <ion-card-title>
-        <ion-icon name="filter-outline" class="filter-icon"></ion-icon>
-        Filtros de Búsqueda
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-grid>
-        <ion-row class="filter-row">
-          <ion-col size="12" size-md="3">
-            <ion-item class="filter-item">
-              <ion-label position="floating">Estado de Auditoría</ion-label>
-              <ion-select 
-                [(ngModel)]="filtroEstado" 
-                interface="popover" 
-                placeholder="Seleccionar estado"
-                class="custom-select">
-                <ion-select-option value="">Todos los estados</ion-select-option>
-                <ion-select-option value="ACTIVA">🟢 Activa</ion-select-option>
-                <ion-select-option value="INACTIVA">🔴 Inactiva</ion-select-option>
-                <ion-select-option value="CONFIGURANDO">🟡 Configurando</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-col>
-          
-          <ion-col size="12" size-md="3">
-            <ion-item class="filter-item">
-              <ion-label position="floating">Nombre de Tabla</ion-label>
-              <ion-input 
-                [(ngModel)]="filtroTabla" 
-                placeholder="Buscar tabla..."
-                clear-input="true"
-                type="text"
-                class="custom-input">
-              </ion-input>
-            </ion-item>
-          </ion-col>
-          
-          <ion-col size="12" size-md="3">
-            <ion-item class="filter-item">
-              <ion-label position="floating">Esquema de BD</ion-label>
-              <ion-select 
-                [(ngModel)]="filtroEsquema" 
-                interface="popover"
-                placeholder="Seleccionar esquema"
-                class="custom-select">
-                <ion-select-option value="">Todos los esquemas</ion-select-option>
-                <ion-select-option *ngFor="let esquema of esquemas" [value]="esquema">
-                  {{ esquema }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-col>
-          
-          <ion-col size="12" size-md="3" class="filter-actions">
-            <div class="action-buttons">
-              <ion-button 
-                fill="solid" 
-                expand="block"
-                (click)="aplicarFiltros()"
-                class="apply-btn">
-                <ion-icon name="search-outline" slot="start"></ion-icon>
-                Aplicar Filtros
-              </ion-button>
-              <ion-button 
-                fill="clear" 
-                expand="block"
-                (click)="limpiarFiltros()"
-                class="clear-btn">
-                <ion-icon name="refresh-outline" slot="start"></ion-icon>
-                Limpiar
-              </ion-button>
-            </div>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
-</div>
+<ion-card class="header-card">
+  <ion-card-content>
+    <h1 class="title">Administración de Tablas</h1>
+    <p class="breadcrumb">Base de datos > Tablas > Gestión</p>
+
+    <div class="connection-status">
+      <ion-icon name="ellipse" color="success" style="font-size: 8px;"></ion-icon>
+      <span class="status-text">Conectado a la base de datos</span>
+    </div>
+  </ion-card-content>
+</ion-card>
+
+<!-- Barra de acciones -->
+<ion-toolbar class="action-toolbar" >
+  <ion-buttons slot="start" class="action-buttons">
+    <ion-button color="primary" fill="solid">
+      Nueva Tabla
+    </ion-button>
+
+    <ion-button fill="outline" color="medium">
+      Sincronizar Schema
+    </ion-button>
+
+    <ion-button color="warning" fill="solid">
+      Respaldar Tablas
+    </ion-button>
+  </ion-buttons>
+
+  <ion-searchbar
+    placeholder="Buscar tablas..."
+    slot="start"
+    class="custom-searchbar">
+  </ion-searchbar>
+</ion-toolbar>
 
 <!-- Resultados y estadísticas -->
 <div class="results-summary" *ngIf="tablaFiltrada.length > 0">
@@ -126,28 +79,28 @@
               <div class="name-container">
                 <ion-icon name="table-outline" class="table-icon"></ion-icon>
                 <div>
-                  <strong>{{ table.tabla }}</strong>
+                  <strong>{{ table.name }}</strong>
                   <p class="schema-name">{{ table.schema }}</p>
                 </div>
               </div>
             </ion-col>
             
             <ion-col size="1.5" class="records-count">
-              <span class="number-badge">{{ table.registros | number }}</span>
+              <span class="number-badge">{{ table.rows | number }}</span>
             </ion-col>
             
             <ion-col size="1.5">
               <ion-badge 
                 class="status-badge"
-                [color]="getStatusColor(table.estado_auditoria)">
-                {{ table.estado_auditoria }}
+                [color]="getStatusColor(table.status)">
+                {{ table.status }}
               </ion-badge>
             </ion-col>
             
             <ion-col size="2" class="last-operation">
               <div class="operation-info">
-                <span class="operation-type">{{ table.ultima_operacion }}</span>
-                <span class="operation-time">{{ table.ultima_operacionTime | date:'short' }}</span>
+                <span class="operation-type">{{ table.lastOp }}</span>
+                <span class="operation-time">{{ table.lastOpTime | date:'short' }}</span>
               </div>
             </ion-col>
             
@@ -168,7 +121,6 @@
                   (click)="configurarTabla(table)"
                   class="action-btn">
                   <ion-icon name="settings-outline" slot="icon-only"></ion-icon>
-                  config
                 </ion-button>
                 
                 <ion-button 
@@ -178,7 +130,6 @@
                   (click)="verHistorial(table)"
                   class="action-btn">
                   <ion-icon name="time-outline" slot="icon-only"></ion-icon>
-                  ver
                 </ion-button>
                 
                 <ion-button 

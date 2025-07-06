@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { TablasService } from '../../services/tablas.service';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-tabla-logs',
@@ -83,7 +83,7 @@ export class TablaLogsComponent  implements OnInit {
   
   logsFiltrados: any[] = [];
 
-  constructor(private logService: TablasService) { 
+  constructor(private logService: DashboardService) { 
     this.checkScreenSize();
     this.inicializarDatos();
   }
@@ -91,6 +91,7 @@ export class TablaLogsComponent  implements OnInit {
   ngOnInit() {
     this.logService.getLogs().subscribe(data => this.logs = data);
     window.addEventListener('resize', () => this.checkScreenSize());
+    this.inicializarDatos();
     this.cargarLogs();
   }
 
@@ -322,14 +323,18 @@ export class TablaLogsComponent  implements OnInit {
 
   // Cargar logs (simular llamada al servicio)
   cargarLogs() {
-    // En una implementación real, aquí llamarías a tu servicio
-    // this.logsService.obtenerLogs().then(datos => {
-    //   this.logs = datos;
-    //   this.inicializarDatos();
-    // });
-    
-    // Actualizar estadísticas
-    this.calcularEstadisticas();
+  this.loading = true;
+    this.logService.getLogs().subscribe({
+      next: (data) => {
+        this.logs = data;
+        this.logsFiltrados = [...data];
+        this.calcularEstadisticas();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 
   // Calcular estadísticas

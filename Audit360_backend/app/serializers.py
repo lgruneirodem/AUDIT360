@@ -3,7 +3,17 @@ from .models import AuditAuxTxLog
 from .models import TablaAuditada
 from .models import InformeAuditoria
 from .models import User, SystemLog,RollbackRequest
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import secrets
+import string
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['rol'] = user.rol
+        token['nombre'] = user.nombre
+        return token
 
 class AuditAuxTxLogSerializer(serializers.ModelSerializer):
     estado = serializers.SerializerMethodField()
@@ -46,6 +56,36 @@ class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
+class UsuarioCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'nombre', 'apellido', 'telefono', 'rol', 'password']
+
+    def create(self, validated_data):
+        password = self.generate_secure_password()
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            nombre=validated_data['nombre'],
+            apellido=validated_data['apellido'],
+            telefono=validated_data.get('telefono', ''),
+            rol=validated_data['rol'],
+            password=password
+        )
+        user.generated_password = password
+        return user
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['password'] = getattr(instance, 'generated_password', '********')
+        return rep
+
+    def generate_secure_password(self, length=12):
+        chars = string.ascii_letters + string.digits + "!@#$%^&*()"
+        return ''.join(secrets.choice(chars) for _ in range(length))
+
 
 class RollbackRequestListSerializer(serializers.ModelSerializer):
     user_request = serializers.StringRelatedField()

@@ -6,20 +6,21 @@ import { DashboardService } from '../services/dashboard.service';
 import { Router } from '@angular/router';
 import { TablaConfiguracionComponent } from '../componentes/tabla-configuracion/tabla-configuracion.component';
 import { TablaLogsComponent } from '../componentes/tabla-logs/tabla-logs.component';
+import { TablaTablasComponent } from '../componentes/tabla-tablas/tabla-tablas.component';
 
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: 'dashboard.page.html',
   styleUrls: ['dashboard.page.scss'],
-  imports: [ IonicModule,CommonModule, FormsModule ,TablaConfiguracionComponent,TablaLogsComponent],
+  imports: [ IonicModule,CommonModule, FormsModule ,TablaConfiguracionComponent,TablaLogsComponent,TablaTablasComponent],
 })
 export class DashboardPage implements OnInit {
   
   private baseUrl = 'http://localhost:8000/app';
   summary: { label: string, count: number }[] = [];
   
-  
+  tablas: any[] = [];
   tablaSeleccionada = 'gestion'; 
   
   
@@ -93,4 +94,5 @@ export class DashboardPage implements OnInit {
         return '';
     }
   }
+
 }

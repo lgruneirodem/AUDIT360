@@ -7,6 +7,8 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { PerfilService } from '../services/perfil.service';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-configuracion',
@@ -20,7 +22,7 @@ export class ConfiguracionPage implements OnInit {
   usuario: any = {};
   modoEdicion = false;
 
-  constructor(private perfilService:PerfilService ) { }
+  constructor(private perfilService:PerfilService,private authService: AuthService, private router: Router ) { }
 
   ngOnInit() {
     this.perfilService.getUsuario(1).subscribe(data => {
@@ -33,4 +35,10 @@ export class ConfiguracionPage implements OnInit {
       this.modoEdicion = false;
     });
   }
+  
+  onLogout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+  
 }

@@ -1,0 +1,101 @@
+<ion-content class="login-content" scrollY="false">
+  <div class="login-wrapper">
+    <div class="login-container">
+      <!-- Header Section -->
+      <div class="header">
+        <div class="logo-container">
+          <img src="assets/logo.png" alt="Audit 360" class="logo-image">
+          <div class="logo-text">
+            <h1>AUDIT</h1>
+            <h2>360</h2>
+          </div>
+        </div>
+        <div class="subtitle">Iniciar sesión en tu cuenta</div>
+      </div>
+      
+      <!-- Form Section -->
+      <div class="form-container">
+        <!-- Error Alert -->
+        <ion-alert
+          [isOpen]="showError"
+          header="Error"
+          [message]="errorMessage"
+          [buttons]="['OK']"
+          (didDismiss)="showError = false">
+        </ion-alert>
+        
+        <!-- Success Toast -->
+        <ion-toast
+          [isOpen]="showSuccess"
+          message="¡Inicio de sesión exitoso!"
+          duration="2000"
+          color="success"
+          position="top"
+          (didDismiss)="showSuccess = false">
+        </ion-toast>
+        
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <!-- Email Input -->
+          <div class="form-group">
+            <ion-label class="input-label">Correo electrónico</ion-label>
+            <ion-input
+              formControlName="email"
+              type="email"
+              placeholder="tu@email.com"
+              class="custom-input"
+              [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            </ion-input>
+            <div class="error-text" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+              <span *ngIf="loginForm.get('email')?.errors?.['required']">El correo es requerido</span>
+              <span *ngIf="loginForm.get('email')?.errors?.['email']">Ingresa un correo válido</span>
+            </div>
+          </div>
+          
+          <!-- Password Input -->
+          <div class="form-group">
+            <ion-label class="input-label">Contraseña</ion-label>
+            <ion-input
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Ingresa tu contraseña"
+              class="custom-input"
+              [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              <ion-button 
+                fill="clear" 
+                slot="end" 
+                (click)="togglePassword()"
+                class="password-toggle">
+                <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+              </ion-button>
+            </ion-input>
+            <div class="error-text" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              <span *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es requerida</span>
+              <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Mínimo 6 caracteres</span>
+            </div>
+          </div>
+          
+          <!-- Remember Me -->
+          <ion-item lines="none" class="remember-item">
+            <ion-checkbox 
+              formControlName="rememberMe"
+              class="remember-checkbox" 
+              slot="start">
+            </ion-checkbox>
+            <ion-label class="remember-label">Recordar mi sesión</ion-label>
+          </ion-item>
+          
+          <!-- Login Button -->
+          <ion-button type="submit" expand="block" class="login-btn" [disabled]="loginForm.invalid || isLoading">
+            <ion-spinner name="crescent" *ngIf="isLoading"class="spinner"></ion-spinner>
+            {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+          </ion-button>
+        </form>
+        
+        <!-- Forgot Password Link -->
+        <div class="forgot-password">
+          <a (click)="showForgotPassword()">¿Olvidaste tu contraseña?</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
