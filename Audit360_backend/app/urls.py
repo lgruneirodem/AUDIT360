@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import DashboardTablaView, HistorialViewSet
+from .views import ApproveRollbackAPIView, CreateRollbackRequestAPIView, DashboardTablaView, HistorialViewSet, ListRollbackRequestsAPIView
 from .views import ActividadPorPeriodoView
 from .views import DashboardResumenView
 from .views import TablaAuditadaListView
@@ -26,6 +26,9 @@ urlpatterns = [
     path('logs/', SystemLogAPIView.as_view(), name='logs-por-rol'),
     path('crear-auditoria/', CrearAuditoriaView.as_view(), name='crear-auditoria'),
     path('tabla-resumen/', DashboardTablaView.as_view()),
+     path('rollback/create/', CreateRollbackRequestAPIView.as_view()),
+    path('rollback/list/', ListRollbackRequestsAPIView.as_view()),
+    path('rollback/approve/<int:request_id>/', ApproveRollbackAPIView.as_view()),
     path('tablas-auditadas/', TablaAuditadaListView.as_view(), name='listar_tablas_auditadas'),
     path('generar-informeIA/', GenerarInformeIaAPIView.as_view()),
     path('informes/<int:pk>/pdf/', InformePDFAPIView.as_view(), name='informe_pdf'),

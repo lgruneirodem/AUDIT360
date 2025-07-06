@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import AuditAuxTxLog
 from .models import TablaAuditada
 from .models import InformeAuditoria
-from .models import Usuario, SystemLog
+from .models import User, SystemLog,RollbackRequest
 
 
 class AuditAuxTxLogSerializer(serializers.ModelSerializer):
@@ -44,8 +44,21 @@ class SystemLogSerializer(serializers.ModelSerializer):
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Usuario
+        model = User
         fields = '__all__'
+
+class RollbackRequestListSerializer(serializers.ModelSerializer):
+    user_request = serializers.StringRelatedField()
+    approved_by = serializers.StringRelatedField()
+
+    class Meta:
+        model = RollbackRequest
+        fields = '__all__'
+
+class RollbackRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RollbackRequest
+        fields = ['transaction_id', 'table_name', 'motivo']
     
 class TablaAuditadaSerializer(serializers.ModelSerializer):
     class Meta:

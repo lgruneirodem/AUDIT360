@@ -110,7 +110,7 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Curso_sql',
+        'NAME': 'copia_audit360',
         'USER': 'root',
         'PASSWORD': '123456',
         'HOST': 'localhost',
@@ -124,6 +124,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+AUTH_USER_MODEL = 'app.User'  
 
 AUTH_PASSWORD_VALIDATORS = [
     {

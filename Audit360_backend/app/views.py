@@ -13,19 +13,19 @@ from django.db.models import Count,Max
 from datetime import datetime,timedelta
 from django.db import connection
 from django.utils.timezone import now
+from django.utils import timezone
 from django.conf import settings
 from django.template.loader import render_to_string
-from .serializers import AuditAuxTxLogSerializer, TablaAuditadaSerializer, InformeRequestSerializer, InformeSerializer,UsuarioSerializer,SystemLogSerializer
-from .models import AuditAuxTxLog, TablaAuditada, InformeAuditoria, Usuario,SystemLog
+from .serializers import AuditAuxTxLogSerializer, TablaAuditadaSerializer, InformeRequestSerializer, InformeSerializer,UsuarioSerializer,SystemLogSerializer,RollbackRequestListSerializer,RollbackRequestSerializer
+from .models import AuditAuxTxLog, TablaAuditada, InformeAuditoria, User,SystemLog,RollbackRequest
 from xhtml2pdf import pisa
 from openai import OpenAI
 import json
 
 
-#
 class UsuarioDetalleAPIView(RetrieveUpdateAPIView):
     permission_classes = [AllowAny]
-    queryset = Usuario.objects.all()
+    queryset = User.objects.all()
     serializer_class = UsuarioSerializer
 
 class DashboardResumenView(APIView):
@@ -230,7 +230,53 @@ class ActividadPorPeriodoView(APIView):
         )
 
         return Response(data)
+    
+class CreateRollbackRequestAPIView(APIView):
+    permission_classes = [AllowAny]
 
+    def post(self, request):
+        serializer = RollbackRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            rollback_request = serializer.save(user_request=request.user)
+            return Response({
+                'success': True,
+                'message': 'Solicitud de rollback creada exitosamente',
+                'request_id': rollback_request.id
+            }, status=status.HTTP_201_CREATED)
+        return Response({'success': False, 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class ListRollbackRequestsAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        if request.user.rol != 'ADMIN':
+            return Response({'detail': 'Acceso denegado'}, status=status.HTTP_403_FORBIDDEN)
+
+        solicitudes = RollbackRequest.objects.select_related('user_request', 'approved_by').order_by('-created_at')
+        data = RollbackRequestListSerializer(solicitudes, many=True).data
+        return Response({'success': True, 'data': data})
+
+class ApproveRollbackAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, request_id):
+        if request.user.rol != 'ADMIN':
+            return Response({'detail': 'Acceso denegado'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            rollback_request = RollbackRequest.objects.get(id=request_id)
+        except RollbackRequest.DoesNotExist:
+            return Response({'error': 'Solicitud no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        if rollback_request.status != 'PENDING':
+            return Response({'error': 'La solicitud ya fue procesada'}, status=status.HTTP_400_BAD_REQUEST)
+
+        rollback_request.status = 'APPROVED'
+        rollback_request.approved_by = request.user
+        rollback_request.approved_at = timezone.now()
+        rollback_request.save()
+
+        return Response({'success': True, 'message': 'Solicitud aprobada'})
 
 # Diccionario de plantillas de prompt según el tipo de análisis
 TIPO_ANALISIS_PROMPT = {
