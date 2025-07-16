@@ -24,6 +24,7 @@ from .models import AuditAuxTxLog, RollbackExecuted, TablaAuditada, InformeAudit
 from xhtml2pdf import pisa
 from openai import OpenAI
 import json
+from app.services.audit_service import AuditService
 
 User = get_user_model()
 
@@ -148,6 +149,8 @@ class GestionAuditoriaAPIView(APIView):
             })
 
         return Response(resultado)
+    
+
 
 class DashboardTablaView(APIView):
     permission_classes = [AllowAny]
@@ -571,18 +574,39 @@ class GenerarInformeIaAPIView(APIView):
             Datos:
             {json.dumps(datos, indent=2)}
 
-            Genera un informe profesional y estructurado que incluya:
+            INSTRUCCIONES ESPECÍFICAS:
 
-            1. Un resumen ejecutivo claro del comportamiento observado durante el periodo {periodo}.
-            2. Un recuento total por tipo de operación (Insert, Update, Delete).
-            3. Un listado resumido por fecha (máx. 5 líneas) indicando tipo de operación, usuario y número de acciones.
-            4. Un apartado de observaciones relevantes o anomalías si las hubiera.
+                Redacta un informe profesional en FORMATO NARRATIVO (párrafos corridos, no listas). 
+                El informe debe ser fluido, bien redactado y fácil de leer, como un informe ejecutivo real.
 
-            4. **Observaciones relevantes** o anomalías si las hubiera.
+                ESTRUCTURA REQUERIDA:
 
-                🔹 Usa Markdown o símbolos como `-` para listas.  
-                🔹 Separa claramente cada sección con títulos o negritas (`**TÍTULO**`).  
-                🔹 No repitas datos innecesarios.
+                **ANÁLISIS DE ACTIVIDAD - TABLA '{tabla.upper()}'**
+                Periodo: {periodo}
+
+                [Escribe un párrafo introductorio que establezca el contexto del análisis, el periodo evaluado y un resumen general de los hallazgos. añadir salto de linea al final]
+
+                **RESUMEN DE OPERACIONES**
+                [En un párrafo corrido, presenta las métricas principales (Insert/Update/Delete) de forma natural, sin usar listas. Incluye el total y cualquier patrón relevante. añadir salto de linea al final]
+
+                **COMPORTAMIENTO TEMPORAL Y DE USUARIOS**  
+                [Combina en párrafos el análisis temporal y de usuarios. Si hay actividad, describe patrones, horarios pico, usuarios más activos. Si no hay actividad, explica las implicaciones. añadir salto de linea al final]
+
+                **CONCLUSIONES Y RECOMENDACIONES**
+                [Párrafo final con observaciones clave, posibles causas de los patrones observados, y recomendaciones específicas y accionables. añadir salto de linea al final]
+                
+
+                REGLAS DE REDACCIÓN:
+                - NO uses listas con guiones (-) ni viñetas
+                - añadir salto de linea al final de cada seccion 
+                - NO uses formato de puntos numerados
+                - Redacta en párrafos corridos y profesionales
+                - Usa conectores y transiciones entre ideas
+                - Si no hay datos, enfócate en el análisis contextual y recomendaciones
+                - Mantén un tono profesional pero accesible
+                - Incluye números y métricas de forma natural en el texto
+                - Cada sección debe tener al menos 2-3 oraciones completas
+
 
 
             Informe generado:"
@@ -644,4 +668,65 @@ class InformeRecienteAPIView(ListAPIView):
     queryset = InformeAuditoria.objects.order_by('-fecha_generacion')[:10]
     serializer_class = InformeSerializer
 
+
+class CrearAuditoriaAutomaticaAPIView(APIView):
+    """Vista súper simple para crear auditoría automática"""
+    permission_classes = [AllowAny]  # Cambiar por IsAuthenticated si quieres autenticación
+    
+    def post(self, request):
+        """
+        Crear auditoría automática
+        
+        POST /app/auditoria/crear/
+        {
+            "tablas": ["usuarios", "productos"]
+        }
+        """
+        
+        # Obtener tablas del request
+        tablas = request.data.get('tablas', [])
+        
+        if not tablas:
+            return Response({
+                'success': False,
+                'error': 'Debe especificar tablas'
+            }, status=400)
+        
+        # Llamar al servicio
+        resultado = AuditService.crear_auditoria_automatica(tablas)
+        
+        # Devolver resultado
+        if resultado['success']:
+            return Response({
+                'success': True,
+                'mensaje': f"✅ Auditoría creada exitosamente!",
+                'estadisticas': {
+                    'tablas_procesadas': resultado['tablas'],
+                    'triggers_ejecutados': resultado['total_triggers'],
+                    'detalles': resultado['triggers_ejecutados']
+                }
+            })
+        else:
+            return Response({
+                'success': False,
+                'error': resultado['error']
+            }, status=400)
+        
+class ProbarAuditoriaAPIView(APIView):
+    """Vista para probar rápidamente"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        """
+        Prueba rápida con tabla de ejemplo
+        GET /app/auditoria/probar/
+        """
+        
+        # Probar con una tabla de ejemplo
+        resultado = AuditService.crear_auditoria_automatica("test_table")
+        
+        return Response({
+            'mensaje': 'Prueba de auditoría automática',
+            'resultado': resultado
+        })
         

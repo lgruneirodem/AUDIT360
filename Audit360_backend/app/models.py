@@ -71,9 +71,9 @@ class User(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True)
     rol = models.CharField(max_length=10, choices=ROLE_CHOICES, default='LECTOR')
 
-    username = None  # Remove username field
-    USERNAME_FIELD = 'email'  # Use email as the unique identifier
-    REQUIRED_FIELDS = ['nombre', 'apellido']  # Required when creating superusers
+    username = None  
+    USERNAME_FIELD = 'email'  
+    REQUIRED_FIELDS = ['nombre', 'apellido'] 
 
     objects = UserManager()
 

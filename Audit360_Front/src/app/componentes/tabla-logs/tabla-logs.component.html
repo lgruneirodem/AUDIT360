@@ -104,7 +104,7 @@
             </ion-col>
             
             <ion-col size="12" size-md="3">
-              <ion-item>
+              <ion-item class="">
                 <ion-label position="floating">Rango de Fechas</ion-label>
                 <ion-datetime 
                   [(ngModel)]="filtros.fechaDesde"
@@ -205,8 +205,8 @@
               *ngFor="let log of logsFiltrados; let i = index" 
               class="log-row"
               [class.even-row]="i % 2 === 0"
-              [class.critical-row]="log.severidad === 'CRITICO'"
-              [class.warning-row]="log.severidad === 'ALTO'">
+              [class.critical-row]="log.nivel === 'CRITICO'"
+              [class.warning-row]="log.nivel === 'ALTO'">
               
               <ion-col size="2" class="timestamp-col">
                 <div class="timestamp-container">
@@ -224,7 +224,7 @@
               <ion-col size="2" class="table-col">
                 <div class="table-info">
                   <ion-icon name="table-outline" class="table-icon"></ion-icon>
-                  <span class="table-name">{{ log.tablaProceso }}</span>
+                  <span class="table-name">{{ log.tabla }}</span>
                 </div>
               </ion-col>
               
@@ -241,9 +241,9 @@
               </ion-col>
               
               <ion-col size="1.5" class="severity-col">
-                <ion-badge [color]="getSeveridadColor(log.severidad)" class="severity-badge">
-                  <ion-icon [name]="getSeveridadIcon(log.severidad)"></ion-icon>
-                  {{ log.severidad }}
+                <ion-badge [color]="getSeveridadColor(log.nivel)" class="severity-badge">
+                  
+                  {{ log.nivel }}
                 </ion-badge>
               </ion-col>
               
@@ -254,7 +254,7 @@
                     fill="clear" 
                     color="primary"
                     (click)="verDetalles(log)"
-                    *ngIf="log.severidad === 'CRITICO'">
+                    *ngIf="log.nivel === 'CRITICO'">
                     <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
                   </ion-button>
                   
@@ -294,8 +294,8 @@
           <ion-card 
             *ngFor="let log of logsFiltrados" 
             class="mobile-log-card"
-            [class.critical-card]="log.severidad === 'CRITICO'"
-            [class.warning-card]="log.severidad === 'ALTO'">
+            [class.critical-card]="log.nivel === 'CRITICO'"
+            [class.warning-card]="log.nivel === 'ALTO'">
             
             <ion-card-header>
               <div class="mobile-log-header">
@@ -303,8 +303,8 @@
                   <ion-badge [color]="getTipoBadgeColor(log.tipo)">{{ log.tipo }}</ion-badge>
                   <span class="mobile-time">{{ log.timestamp | date:'dd/MM HH:mm' }}</span>
                 </div>
-                <ion-badge [color]="getSeveridadColor(log.severidad)" class="mobile-severity">
-                  <ion-icon [name]="getSeveridadIcon(log.severidad)"></ion-icon>
+                <ion-badge [color]="getSeveridadColor(log.nivel)" class="mobile-severity">
+                  <ion-icon [name]="getSeveridadIcon(log.nivel)"></ion-icon>
                   {{ log.severidad }}
                 </ion-badge>
               </div>
@@ -315,7 +315,7 @@
                 <div class="log-info">
                   <div class="info-row">
                     <span class="label">Tabla/Proceso:</span>
-                    <span class="value">{{ log.tablaProceso }}</span>
+                    <span class="value">{{ log.tabla }}</span>
                   </div>
                   <div class="info-row message-row">
                     <span class="label">Mensaje:</span>

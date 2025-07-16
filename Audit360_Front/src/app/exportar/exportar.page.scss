@@ -1,168 +1,467 @@
-::host {
-  --ion-padding: 3rem;
-  background: #F4F4F4;
-}
-.container {
-  padding: 1rem;
-  margin-top: 150px;
-}
-
-// estilos para la card de generar informe
-.generar{
-  margin-top: 90px;
-}
-.calendario ion-label{
-  margin-top: 10px;
+// Variables CSS personalizadas
+:host {
+  --ion-padding: 2rem;
+  --primary-color: #3CA6A6;
+  --primary-dark: #0CABA8;
+  --background-color: #F8F9FA;
+  --card-background: #FFFFFF;
+  --text-primary: #2D3748;
+  --text-secondary: #718096;
+  --border-color: #E2E8F0;
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --border-radius: 12px;
+  --border-radius-small: 8px;
   
-}
-.custom-select{
-
-  margin-bottom: 10px;
-  margin-top: 6px;
-  padding: 6px;
+  background: var(--background-color);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.filtros_generar ion-label{
-  font-size: 18px;
-}
-.custom-date-input {
-  width: 90%;
-  padding: 5px;
-  margin-top: 10px;
-  margin-bottom: 6px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
+// Layout principal
+.container {
+  padding: 1.5rem;
+  margin-top: 100px;
+
+  margin-left: auto;
+  margin-right: auto;
 }
 
-ion-button.generate-btn {
-  --background: #3CA6A6;            /* Teal background */
-  --background-activated: #0CABA8;  /* Slightly darker when clicked */
-  --background-hover: #0CABA8;      /* Slightly darker on hover */
-  --color: white;                   /* White text */
-  --border-radius: 4px;             /* Rounded corners */
-  --padding-top: 10px;              /* Vertical padding */
-  --padding-bottom: 10px;
-  --padding-start: 16px;            /* Horizontal padding */
-  --padding-end: 16px;
-  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* Subtle shadow */
-  margin: 12px 0;                  /* Margin using standard CSS */
-}
-
-/* If you need to increase specificity to override Ionic defaults */
-ion-row ion-col.ion-text-end ion-button.generate-btn {
-  --background: #3CA6A6;
-  --color: white;
-}
-
-/* Add a transition for smooth hover effects */
-ion-button.generate-btn::part(native) {
-  transition: all 0.2s ease;
-}
-
-/* If you need to style the ripple effect */
-ion-button.generate-btn::part(ripple) {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-ion-select {
-  --placeholder-color: #858383;
-  font-weight: 500;
-}
-
-ion-select-option {
-  padding: 10px;
-  font-size: 14px;
-}
-
-ion-card {
-    margin-top: 10px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    background:#F4F4F4;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+// ============================================
+// CARD DE GENERACIÓN DE INFORME
+// ============================================
+.generar {
+  margin-top: 60px;
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  border: none;
+  overflow: hidden;
+  
+  ion-card-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1.5rem;
+    
+    ion-card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: white;
+      
+      ion-icon {
+        font-size: 1.5rem;
+      }
+    }
   }
   
-  ion-card-title {
-    font-size: 1.2rem;
-    color: #0CABA8;
+  ion-card-content {
+    padding: 2rem;
+  }
+}
+
+// Filtros de generación
+.filtros_generar {
+  gap: 1rem;
+  
+  ion-col {
+    padding: 0.5rem;
   }
   
   ion-item {
     --background: transparent;
     --padding-start: 0;
-  }
-  
-  ion-button {
-    margin-top: 12px;
-    --border-radius: 4px;
-  }
-
-  // estilos de la visualización del informe
-  .report-actions .export-btn{
-    --border-color: #0CABA8;
-    --border-width: 1px;
-    --color: #0CABA8;
-    --background: transparent;
-    --background-hover: rgba(12, 171, 168, 0.1);
-  }
-  
-  .report-actions .share-btn{
-    --border-color: #0CABA8;
-    --border-width: 1px;
-    --color: #0CABA8;
-    --background: transparent;
-    --background-hover: rgba(12, 171, 168, 0.1);
-  }
-
-  .report-actions .save-btn{
-    --background: #3CA6A6;
-    --background-activated: #0CABA8;
-    --background-hover: #0CABA8;
-    --color: white;
-    --border-color: transparent;
-  }
-  
-  .report-actions ion-button + ion-button {
-    margin-left: 8px;
-  }
-
-  .chart-placeholder{
-    width: 100%;
-    max-width: 800px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  }
-
-  ion-list ion-item {
-    background:#F4F4F4;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 0.95rem;
-    color: #333;
-  }
-  
-  ion-list ion-item:last-child {
-    border-bottom: none;
-  }
-
-  //estilos del historico de informes
-  .btn-historico{
-    --color: #3CA6A6;
-  }
-.detalles{
-  margin-top: 50px;
-}
-  .IA-container{
-    margin-bottom: 10px;
-  }
-  .resumenIA{
-    margin-top: 5px;
-    margin-bottom: 10px;
-  }
-
-  .header-row ion-col {
+    --border-color: var(--border-color);
+    border-radius: var(--border-radius-small);
+    margin-bottom: 1rem;
     
-    padding: 3px 0;
+    &:hover {
+      --background: rgba(60, 166, 166, 0.02);
+    }
   }
+  
+  ion-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+}
+
+// Inputs personalizados
+.custom-select {
+  margin-bottom: 0;
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  background: white;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    --border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(60, 166, 166, 0.1);
+  }
+}
+
+.custom-date-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  font-size: 14px;
+  background: white;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(60, 166, 166, 0.1);
+  }
+}
+
+// Botón de generar mejorado
+ion-button.generate-btn {
+  --background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  --background-activated: var(--primary-dark);
+  --background-hover: var(--primary-dark);
+  --color: white;
+  --border-radius: var(--border-radius-small);
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --padding-start: 24px;
+  --padding-end: 24px;
+  --box-shadow: var(--shadow-medium);
+  margin: 1.5rem 0;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    --box-shadow: 0 6px 20px rgba(60, 166, 166, 0.3);
+  }
+}
+
+// ============================================
+// CARD DE PREVISUALIZACIÓN
+// ============================================
+ion-card {
+  margin-top: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  ion-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    
+    ion-card-title {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    ion-card-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+  }
+  
+  ion-card-content {
+    padding: 1.5rem;
+  }
+}
+
+// ============================================
+// CONTENEDOR DE IA
+// ============================================
+.IA-container {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e8f4f8 100%);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(60, 166, 166, 0.1);
+  position: relative;
+  
+  &::before {
+    content: '🤖';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    opacity: 0.7;
+  }
+  
+  h2 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &::before {
+      content: '✨';
+      font-size: 1rem;
+    }
+  }
+  
+  .resumenIA {
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    
+    // Estilos para contenido markdown
+    h3, h4 {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem 0;
+    }
+    
+    p {
+      margin-bottom: 1rem;
+    }
+    
+    strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+  }
+  
+  ion-spinner {
+    display: block;
+    margin: 2rem auto;
+    --color: var(--primary-color);
+  }
+}
+
+// ============================================
+// DETALLES DE OPERACIONES
+// ============================================
+.detalles {
+  margin-top: 2rem;
+  
+  h2 {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+  }
+  
+  .header-row {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    border-radius: var(--border-radius-small);
+    margin-bottom: 0.5rem;
+    
+    ion-col {
+      padding: 1rem 0.75rem;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    // Filas de datos
+    &:not(:first-child) {
+      background: white;
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.25rem;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(60, 166, 166, 0.02);
+        border-color: var(--primary-color);
+      }
+      
+      ion-col {
+        color: var(--text-primary);
+        font-weight: 400;
+        padding: 0.75rem;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+// ============================================
+// ACCIONES DEL INFORME
+// ============================================
+.report-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  
+  .export-btn {
+    --border-color: var(--primary-color);
+    --border-width: 2px;
+    --color: var(--primary-color);
+    --background: transparent;
+    --background-hover: rgba(60, 166, 166, 0.05);
+    --border-radius: var(--border-radius-small);
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+  
+  .save-btn {
+    --background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    --background-activated: var(--primary-dark);
+    --background-hover: var(--primary-dark);
+    --color: white;
+    --border-radius: var(--border-radius-small);
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      --box-shadow: 0 4px 12px rgba(60, 166, 166, 0.3);
+    }
+  }
+}
+
+// ============================================
+// HISTORIAL DE INFORMES
+// ============================================
+ion-list {
+  background: transparent;
+  
+  ion-item {
+    --background: white;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    border-radius: var(--border-radius-small);
+    margin-bottom: 0.25rem;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      --background: rgba(60, 166, 166, 0.02);
+      transform: translateX(4px);
+    }
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    // Header del historial
+    &:first-child {
+      --background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      color: white;
+      font-weight: 600;
+      
+      ion-col {
+        color: white;
+      }
+    }
+  }
+}
+
+.btn-historico {
+  --color: var(--primary-color);
+  --background-hover: rgba(60, 166, 166, 0.1);
+  --border-radius: var(--border-radius-small);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// ============================================
+// UTILIDADES Y RESPONSIVE
+// ============================================
+.chart-placeholder {
+  width: 100%;
+  max-width: 100%;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+// Mejoras para inputs de Ionic
+ion-select {
+  --placeholder-color: var(--text-secondary);
+  font-weight: 500;
+}
+
+ion-select-option {
+  padding: 12px;
+  font-size: 14px;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    margin-top: 80px;
+  }
+  
+  .generar {
+    margin-top: 40px;
+  }
+  
+  .filtros_generar {
+    gap: 0.5rem;
+  }
+  
+  .report-actions {
+    flex-direction: column;
+    
+    ion-button {
+      width: 100%;
+      margin: 0.25rem 0;
+    }
+  }
+  
+  .header-row ion-col {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+// Animaciones suaves
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+ion-card {
+  animation: fadeInUp 0.4s ease-out;
+}

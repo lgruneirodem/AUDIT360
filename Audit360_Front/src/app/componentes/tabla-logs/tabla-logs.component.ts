@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { DashboardService } from '../../services/dashboard.service';
+import { DashboardService} from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-tabla-logs',
@@ -43,35 +43,9 @@ export class TablaLogsComponent  implements OnInit {
     { value: 'integracion', label: 'Integración', icon: 'sync-outline', color: 'secondary' },
     { value: 'auditoria', label: 'Auditoría', icon: 'shield-outline', color: 'success' }
   ];
-   // Datos de logs (simulando datos reales)
-  logs = [
-    {
-      id: 1,
-      timestamp: new Date('2025-06-19T14:25:00'),
-      tipo: 'Trigger Error',
-      tablaProceso: 'users',
-      mensaje: 'Error al escribir en tabla de auditoría: conexión perdida',
-      severidad: 'CRITICO',
-      detalles: {
-        error_code: 'DB_CONNECTION_LOST',
-        affected_rows: 0,
-        query: 'INSERT INTO audit_users...',
-        stack_trace: 'SQLException: Connection timeout...'
-      }
-    },
-    {
-      id: 2,
-      timestamp: new Date('2025-06-19T14:20:15'),
-      tipo: 'Integration',
-      tablaProceso: 'Django Sync',
-      mensaje: '5 nuevas tablas detectadas en la aplicación',
-      severidad: 'INFO',
-      detalles: {
-        new_tables: ['user_profiles', 'notifications', 'settings', 'logs', 'cache'],
-        source: 'django_app_v2.3',
-        auto_audit_enabled: true
-      }
-    }]
+   
+  // Datos de logs (simulando datos reales)
+  logs: any = [];
 
   // Estadísticas
   stats = {
@@ -83,15 +57,15 @@ export class TablaLogsComponent  implements OnInit {
   
   logsFiltrados: any[] = [];
 
-  constructor(private logService: DashboardService) { 
+  constructor(private dashboardService: DashboardService) { 
     this.checkScreenSize();
     this.inicializarDatos();
   }
 
   ngOnInit() {
-    this.logService.getLogs().subscribe(data => this.logs = data);
+    this.dashboardService.getLogs().subscribe(data => this.logs = data);
     window.addEventListener('resize', () => this.checkScreenSize());
-    this.inicializarDatos();
+   
     this.cargarLogs();
   }
 
@@ -119,7 +93,7 @@ export class TablaLogsComponent  implements OnInit {
 
   // Aplicar filtro rápido
   aplicarFiltroRapido(filtro: string) {
-    this.filtroActivo = this.filtroActivo === filtro ? '' : filtro;
+    /*this.filtroActivo = this.filtroActivo === filtro ? '' : filtro;
     
     let logsFiltrados = [...this.logs];
     
@@ -154,7 +128,7 @@ export class TablaLogsComponent  implements OnInit {
     this.logsFiltrados = logsFiltrados;
     this.totalLogs = logsFiltrados.length;
     this.paginaActual = 1;
-    this.calcularPaginacion();
+    this.calcularPaginacion();*/
   }
 
   // Aplicar filtros avanzados
@@ -324,7 +298,7 @@ export class TablaLogsComponent  implements OnInit {
   // Cargar logs (simular llamada al servicio)
   cargarLogs() {
   this.loading = true;
-    this.logService.getLogs().subscribe({
+    this.dashboardService.getLogs().subscribe({
       next: (data) => {
         this.logs = data;
         this.logsFiltrados = [...data];
@@ -340,10 +314,10 @@ export class TablaLogsComponent  implements OnInit {
   // Calcular estadísticas
   calcularEstadisticas() {
     this.stats = {
-      criticos: this.logs.filter(log => log.severidad === 'CRITICO').length,
-      advertencias: this.logs.filter(log => log.severidad === 'ALTO').length,
-      info: this.logs.filter(log => log.severidad === 'INFO').length,
-      exitosos: this.logs.filter(log => log.severidad === 'EXITO').length
+      criticos: this.logs.filter((log: any) => log.severidad === 'CRITICO').length,
+      advertencias: this.logs.filter((log: any) => log.severidad === 'ALTO').length,
+      info: this.logs.filter((log: any) => log.severidad === 'INFO').length,
+      exitosos: this.logs.filter((log: any) => log.severidad === 'EXITO').length
     };
   }
 

@@ -4,7 +4,7 @@ from .views import ApproveRollbackAPIView, CreateRollbackRequestAPIView, CustomT
 from .views import ActividadPorPeriodoView
 from .views import DashboardResumenView
 from .views import TablaAuditadaListView
-from .views import GenerarInformeIaAPIView,InformePDFAPIView,InformeRecienteAPIView,DatosInformeAPIView,GuardarInformeAPIView,UsuarioDetalleAPIView,SystemLogAPIView,CrearAuditoriaView
+from .views import GenerarInformeIaAPIView,InformePDFAPIView,InformeRecienteAPIView,DatosInformeAPIView,GuardarInformeAPIView,UsuarioDetalleAPIView,SystemLogAPIView,CrearAuditoriaView,CrearAuditoriaAutomaticaAPIView, ProbarAuditoriaAPIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -37,5 +37,7 @@ urlpatterns = [
     path('datos-informe/', DatosInformeAPIView.as_view(), name='datos_auditoria'),
     path('guardar-informe/', GuardarInformeAPIView.as_view(), name='guardar_informe'),
     path('usuarios/<int:pk>/', UsuarioDetalleAPIView.as_view(), name='usuario_detalle'),
+    path('auditoria/crear/', CrearAuditoriaAutomaticaAPIView.as_view(), name='crear-auditoria'),
+    path('auditoria/probar/', ProbarAuditoriaAPIView.as_view(), name='probar-auditoria'),
 
 ]
