@@ -29,6 +29,22 @@ export class DashboardService {
   getLogs() {
     return this.http.get<any[]>(`${this.apiUrl}/logs/`);
   }
+  // Crear auditoría automática
+  crearAuditoriaAutomatica(tablas: string[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auditoria/crear/`, {
+      tablas: tablas
+    });
+  }
+
+  // Prueba rápida
+  probarAuditoria(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auditoria/probar/`);
+  }
+
+  // Obtener tablas disponibles
+  obtenerTablasDisponibles(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/gestion-auditoria/`);
+  }
 
   /*activarAuditoria(tabla: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/activar-auditoria/`, { tabla });

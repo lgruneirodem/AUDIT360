@@ -1,5 +1,266 @@
-<!-- Caja de filtros mejorada -->
 <ion-card class="header-card">
+  <div class="header-section">
+      <h1>🧪 Prueba de Auditoría Automática</h1>
+      <p>Prueba la creación automática de triggers de auditoría</p>
+    </div>
+
+    <!-- Sección de Prueba Rápida -->
+    <ion-card class="quick-test-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="flash-outline"></ion-icon>
+          Prueba Rápida
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Ejecuta una prueba con una tabla de ejemplo para verificar que todo funciona.</p>
+        <ion-button 
+          expand="block" 
+          fill="solid" 
+          color="primary"
+          (click)="pruebaRapida()"
+          [disabled]="isLoading">
+          <ion-icon name="rocket-outline" slot="start"></ion-icon>
+          Ejecutar Prueba Rápida
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Sección de Tablas Disponibles -->
+    <ion-card class="tables-card" *ngIf="tablasDisponibles.length > 0">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="list-outline"></ion-icon>
+          Tablas Disponibles
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Selecciona las tablas para las que quieres crear auditoría:</p>
+        
+        <div class="tables-grid">
+          <ion-item *ngFor="let tabla of tablasDisponibles" class="table-item" [class.selected]="isSeleccionada(tabla.tabla)" (click)="toggleTabla(tabla.tabla)">
+            <ion-checkbox 
+              [checked]="isSeleccionada(tabla.tabla)"
+              slot="start">
+            </ion-checkbox>
+            <ion-label>
+              <h3>{{ tabla.tabla }}</h3>
+              <p>{{ tabla.registros | number }} registros</p>
+              <ion-badge 
+                [color]="tabla.estado_auditoria === 'ACTIVA' ? 'success' : 'medium'"
+                class="status-badge">
+                {{ tabla.estado_auditoria }}
+              </ion-badge>
+            </ion-label>
+          </ion-item>
+        </div>
+
+        <div class="table-actions" *ngIf="tablasSeleccionadas.length > 0">
+          <ion-chip color="primary">
+            <ion-label>{{ tablasSeleccionadas.length }} tabla(s) seleccionada(s)</ion-label>
+          </ion-chip>
+          
+          <div class="action-buttons">
+            <ion-button fill="solid" color="success" (click)="crearAuditoriaSeleccionadas()" [disabled]="isLoading">
+              <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+              Crear Auditoría
+            </ion-button>
+            
+            <ion-button fill="clear" color="medium"(click)="limpiarSelecciones()">
+              <ion-icon name="close-outline" slot="start"></ion-icon>
+              Limpiar
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Sección de Tablas Personalizadas -->
+    <ion-card class="custom-tables-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="create-outline"></ion-icon>
+          Tablas Personalizadas
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Escribe manualmente los nombres de las tablas (separadas por comas):</p>
+        
+        <ion-item class="custom-input">
+          <ion-label position="stacked">Nombres de Tablas</ion-label>
+          <ion-textarea 
+            [(ngModel)]="tablasPersonalizadas"
+            placeholder="usuarios, productos, pedidos, categorias"
+            rows="3">
+          </ion-textarea>
+        </ion-item>
+        
+        <ion-button 
+          expand="block" 
+          fill="solid" 
+          color="tertiary"
+          (click)="crearAuditoriaPersonalizada()"
+          [disabled]="isLoading || !tablasPersonalizadas.trim()">
+          <ion-icon name="hammer-outline" slot="start"></ion-icon>
+          Crear Auditoría Personalizada
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Sección de Resultados -->
+    <ion-card class="results-card" *ngIf="mostrarResultado && resultado">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon [name]="resultado.success ? 'checkmark-circle-outline' : 'alert-circle-outline'"></ion-icon>
+          Resultado de la Prueba
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="limpiarResultado()"
+            slot="end">
+            <ion-icon name="close" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        
+        <!-- Resultado Exitoso -->
+        <div *ngIf="resultado.success" class="success-result">
+          <div class="result-summary">
+            <h3>✅ ¡Auditoría Creada Exitosamente!</h3>
+            <p>{{ resultado.mensaje }}</p>
+          </div>
+          
+          <div class="stats-section" *ngIf="resultado.estadisticas">
+            <h4>📊 Estadísticas:</h4>
+            <ion-grid class="stats-grid">
+              <ion-row>
+                <ion-col size="6">
+                  <div class="stat-item">
+                    <span class="stat-value">{{ resultado.estadisticas.triggers_ejecutados }}</span>
+                    <span class="stat-label">Triggers</span>
+                  </div>
+                </ion-col>
+                <ion-col size="6">
+                  <div class="stat-item">
+                    <span class="stat-value">{{ resultado.estadisticas.tablas_procesadas?.length || 0 }}</span>
+                    <span class="stat-label">Tablas</span>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+          
+          <div class="details-section" *ngIf="resultado.estadisticas?.detalles">
+            <h4>🔧 Detalles de Triggers:</h4>
+            <div class="trigger-list">
+              <ion-chip 
+                *ngFor="let detalle of resultado.estadisticas.detalles" 
+                [color]="detalle.includes('ERROR') ? 'danger' : 'success'"
+                class="trigger-chip">
+                <ion-label>{{ detalle }}</ion-label>
+              </ion-chip>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultado con Error -->
+        <div *ngIf="!resultado.success" class="error-result">
+          <div class="error-summary">
+            <h3>❌ Error en la Creación</h3>
+            <p class="error-message">{{ resultado.error }}</p>
+          </div>
+          
+          <div class="error-details" *ngIf="resultado.error_details">
+            <h4>🔍 Detalles Técnicos:</h4>
+            <pre class="error-code">{{ resultado.error_details | json }}</pre>
+          </div>
+        </div>
+
+        <!-- Resultado de Prueba Rápida -->
+        <div *ngIf="resultado.resultado" class="quick-test-result">
+          <h4>🧪 Resultado de Prueba:</h4>
+          <div class="test-info">
+            <p><strong>Éxito:</strong> {{ resultado.resultado.success ? 'Sí' : 'No' }}</p>
+            <p *ngIf="resultado.resultado.error"><strong>Error:</strong> {{ resultado.resultado.error }}</p>
+            <p *ngIf="resultado.resultado.total_triggers"><strong>Triggers:</strong> {{ resultado.resultado.total_triggers }}</p>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="result-actions">
+          <ion-button 
+            fill="outline" 
+            size="small"
+            (click)="copiarResultado()">
+            <ion-icon name="copy-outline" slot="start"></ion-icon>
+            Copiar JSON
+          </ion-button>
+          
+          <ion-button 
+            fill="clear" 
+            size="small"
+            color="medium"
+            (click)="limpiarResultado()">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Limpiar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Información Adicional -->
+    <ion-card class="info-card">
+      <ion-card-content>
+        <h3>ℹ️ Información</h3>
+        <ul>
+          <li>Los triggers se crean automáticamente usando tu procedimiento almacenado</li>
+          <li>Se verificará que las tablas existan antes de crear la auditoría</li>
+          <li>Los triggers registrarán INSERT, UPDATE y DELETE automáticamente</li>
+          <li>Puedes verificar los resultados en tu base de datos MySQL</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   <ion-card-content>
     <h1 class="title">Administración de Tablas</h1>
     <p class="breadcrumb">Base de datos > Tablas > Gestión</p>
@@ -18,7 +279,7 @@
 <!-- Barra de acciones -->
 <ion-toolbar class="action-toolbar">
   <ion-buttons slot="start" class="action-buttons">
-    <ion-button color="primary" fill="solid"  (click)="nuevaTabla()"> Nueva Tabla </ion-button>
+    <ion-button color="primary" fill="solid"  (click)="openActivarAuditoriaModal()"> Nueva Tabla </ion-button>
 
     <ion-button fill="outline" color="medium"> Sincronizar Schema </ion-button>
 
@@ -79,7 +340,7 @@
 
           <ion-col size="2">
             <ion-button fill="clear" size="small" color="primary" >Ver</ion-button>
-            <ion-button fill="clear" size="small" color="tertiary" (click)="configurarTabla(table)">Editar</ion-button>
+            <ion-button fill="clear" size="small" color="tertiary" >Editar</ion-button>
             <ion-button fill="clear" size="small" color="warning" >Auditar</ion-button>
             <ion-button *ngIf="table.status === 'INACTIVA'" fill="solid" size="small" color="danger" >Eliminar</ion-button>
           </ion-col>
@@ -102,10 +363,7 @@
           <ion-card-title>{{ table.name }}</ion-card-title>
           <ion-card-subtitle>{{ table.schema }}</ion-card-subtitle>
         </div>
-        <ion-badge
-          [color]="getStatusColor(table.status)"
-          class="mobile-status-badge"
-        >
+        <ion-badge class="mobile-status-badge">
           {{ table.status }}
         </ion-badge>
       </div>
@@ -149,366 +407,122 @@
   <ion-icon name="search-outline" class="empty-icon"></ion-icon>
   <h3>No se encontraron resultados</h3>
   <p>Intenta ajustar los filtros de búsqueda</p>
-  <ion-button fill="outline" (click)="limpiarFiltros()">
+  <ion-button fill="outline" >
     Limpiar filtros
   </ion-button>
 </div>
 
-<ion-modal class="edit-modal" [isOpen]="showEditModal" (didDismiss)="closeEditModal()">
+<!-- Modal para creación de auditoría de nueva tabla-->
+<ion-modal [isOpen]="showActivarAuditoriaModal" (didDismiss)="closeActivarAuditoriaModal()" class="activar-auditoria-modal">
   <ng-template>
-    <div class="modal-header">
-      <h2>
-        <ion-icon name="create-outline"></ion-icon>
-        {{ selectedTableConfig ? 'Editar Tabla: ' + selectedTableConfig.name : 'Nueva Tabla' }}
-      </h2>
-      <ion-button fill="clear" class="close-btn" (click)="closeEditModal()">
-        <ion-icon name="close"></ion-icon>
-      </ion-button>
-    </div>
-
-    <div class="modal-content">
-      <!-- Información básica -->
-      <div class="form-section">
-        <h3>Información Básica</h3>
-        <div class="form-group">
-          <label>Nombre de la Tabla</label>
-          <ion-input [(ngModel)]="editForm.name" placeholder="Ingresa el nombre de la tabla" clearInput="true"></ion-input>
-          <div class="form-hint">El nombre debe ser único en la base de datos</div>
+    <div class="modal-container">
+      <div class="modal-content" *ngIf="modalState === 'initial'">
+        <div class="modal-header">
+          <div class="icon-container">
+            <ion-icon name="shield-checkmark-outline" class="audit-icon"></ion-icon>
+          </div>
+          <ion-button fill="clear" class="close-btn" (click)="closeActivarAuditoriaModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Schema</label>
-            <ion-select [(ngModel)]="editForm.schema" placeholder="Selecciona un schema">
-              <ion-select-option value="public">public</ion-select-option>
-              <ion-select-option value="admin">admin</ion-select-option>
-              <ion-select-option value="reporting">reporting</ion-select-option>
-            </ion-select>
-          </div>
-          <div class="form-group">
-            <label>Tipo de Tabla</label>
-            <ion-select [(ngModel)]="editForm.type" placeholder="Tipo">
-              <ion-select-option value="table">Tabla Regular</ion-select-option>
-              <ion-select-option value="view">Vista</ion-select-option>
-              <ion-select-option value="materialized">Vista Materializada</ion-select-option>
-            </ion-select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Descripción</label>
-          <ion-textarea [(ngModel)]="editForm.description" placeholder="Describe el propósito de esta tabla..." rows="3"></ion-textarea>
-        </div>
-      </div>
-
-      <!-- Estado y configuración -->
-      <div class="form-section">
-        <h3>Estado y Configuración</h3>
-        <div class="form-group">
-          <label>Estado de la Tabla</label>
-          <div class="status-selector">
-            <div class="status-option" [class.active]="editForm.status === 'ACTIVA'" (click)="editForm.status = 'ACTIVA'">
-              <ion-icon name="checkmark-circle"></ion-icon><span>ACTIVA</span>
-            </div>
-            <div class="status-option" [class.inactive]="editForm.status === 'INACTIVA'" (click)="editForm.status = 'INACTIVA'">
-              <ion-icon name="close-circle"></ion-icon><span>INACTIVA</span>
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Límite de Registros</label>
-            <ion-input type="number" [(ngModel)]="editForm.rowLimit" placeholder="0 = Sin límite"></ion-input>
-          </div>
-          <div class="form-group">
-            <label>Prioridad de Backup</label>
-            <ion-select [(ngModel)]="editForm.backupPriority" placeholder="Selecciona prioridad">
-              <ion-select-option value="high">Alta</ion-select-option>
-              <ion-select-option value="medium">Media</ion-select-option>
-              <ion-select-option value="low">Baja</ion-select-option>
-            </ion-select>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-group-inline">
-            <ion-checkbox [(ngModel)]="editForm.autoBackup"></ion-checkbox>
-            <label>Habilitar backup automático</label>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="form-group-inline">
-            <ion-checkbox [(ngModel)]="editForm.enableAudit"></ion-checkbox>
-            <label>Habilitar auditoría de cambios</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Configuración avanzada -->
-      <div class="form-section">
-        <h3>Configuración Avanzada</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Retención de Datos (días)</label>
-            <ion-input type="number" [(ngModel)]="editForm.dataRetention" placeholder="365"></ion-input>
-          </div>
-          <div class="form-group">
-            <label>Compresión</label>
-            <ion-select [(ngModel)]="editForm.compression" placeholder="Tipo de compresión">
-              <ion-select-option value="none">Sin compresión</ion-select-option>
-              <ion-select-option value="gzip">GZIP</ion-select-option>
-              <ion-select-option value="lz4">LZ4</ion-select-option>
-            </ion-select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Índices Personalizados</label>
-          <ion-textarea [(ngModel)]="editForm.customIndexes" placeholder="Especifica índices adicionales..." rows="2"></ion-textarea>
-          <div class="form-hint">Separa múltiples índices con comas</div>
-        </div>
-      </div>
-
-      <!-- Zona de peligro -->
-      <div class="danger-zone" *ngIf="editForm.status === 'INACTIVA'">
-        <h4>
-          <ion-icon name="warning"></ion-icon> Zona de Peligro
-        </h4>
-        <p>Esta tabla está inactiva. Los datos pueden ser eliminados permanentemente si no se reactiva pronto.</p>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <ion-button fill="outline" class="btn-delete" *ngIf="selectedTableConfig && editForm.status === 'INACTIVA'" (click)="deleteTable()">
-        <ion-icon name="trash" slot="start"></ion-icon> Eliminar Permanentemente
-      </ion-button>
-      <div class="btn-group">
-        <ion-button fill="outline" class="btn-cancel" (click)="closeEditModal()">Cancelar</ion-button>
-        <ion-button class="btn-save" (click)="saveChanges()">
-          <ion-icon name="save" slot="start"></ion-icon> {{ selectedTableConfig ? 'Guardar Cambios' : 'Crear Tabla' }}
-        </ion-button>
-      </div>
-    </div>
-  </ng-template>
-</ion-modal>
-
-
-<!-- MODAL PARA EDITAR DATOS DE TABLA -->
-<ion-modal class="edit-data-modal" [isOpen]="showEditDataModal" (didDismiss)="closeEditDataModal()">
-  <ng-template>
-    <div class="modal-header">
-      <h2>
-        <ion-icon name="create-outline"></ion-icon>
-        {{ editingRecord ? 'Editar Registro' : 'Nuevo Registro' }} - {{ selectedTableData?.name }}
-      </h2>
-      <ion-button 
-        fill="clear" 
-        class="close-btn"
-        (click)="closeEditDataModal()">
-        <ion-icon name="close"></ion-icon>
-      </ion-button>
-    </div>
-
-    <div class="modal-content">
-      <!-- Información de la tabla -->
-      <div class="table-info-section">
-        <div class="table-summary">
-          <div class="summary-item">
-            <ion-icon name="layers-outline"></ion-icon>
-            <span>{{ getTableColumns(selectedTableData?.name).length }} campos</span>
-          </div>
-          <div class="summary-item">
-            <ion-icon name="documents-outline"></ion-icon>
-            <span>{{ selectedTableData?.rows | number }} registros totales</span>
-          </div>
-          <div class="summary-item" *ngIf="editingRecord">
-            <ion-icon name="create-outline"></ion-icon>
-            <span>Editando registro ID: {{ recordForm.id || 'Nuevo' }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Formulario de datos -->
-      <div class="data-form">
-        <div class="form-section">
-          <h3>
-            <ion-icon name="document-text-outline"></ion-icon>
-            Datos del Registro
-          </h3>
-          
-          <div class="form-grid">
-            <div 
-              *ngFor="let column of getTableColumns(selectedTableData?.name)" 
-              class="form-field"
-              [class.readonly]="column.name === 'id' && editingRecord">
-              
-              <label class="field-label">
-                {{ column.name }}
-                <span class="field-type">{{ column.type }}</span>
-                <ion-icon 
-                  *ngIf="!column.isNullable" 
-                  name="star" 
-                  class="required-icon"
-                  title="Campo obligatorio">
-                </ion-icon>
-              </label>
-
-              <!-- Campo ID (solo lectura en edición) -->
-              <ion-input
-                *ngIf="column.name === 'id'"
-                [value]="recordForm[column.name]"
-                [readonly]="editingRecord"
-                [placeholder]="editingRecord ? 'Auto-generado' : 'Auto-generado'"
-                class="field-input readonly-input">
-              </ion-input>
-
-              <!-- Campo de texto -->
-              <ion-input
-                *ngIf="column.type === 'VARCHAR' || column.type === 'TEXT' && column.name !== 'id'"
-                [(ngModel)]="recordForm[column.name]"
-                [placeholder]="getPlaceholder(column)"
-                [maxlength]="column.length"
-                clearInput="true"
-                class="field-input">
-              </ion-input>
-
-              <!-- Campo numérico -->
-              <ion-input
-                *ngIf="(column.type === 'INTEGER' || column.type === 'BIGINT' || column.type === 'DECIMAL') && column.name !== 'id'"
-                [(ngModel)]="recordForm[column.name]"
-                type="number"
-                [placeholder]="getPlaceholder(column)"
-                class="field-input">
-              </ion-input>
-
-              <!-- Campo booleano -->
-              <div *ngIf="column.type === 'BOOLEAN'" class="boolean-field">
-                <ion-segment [(ngModel)]="recordForm[column.name]" class="boolean-segment">
-                  <ion-segment-button value="true">
-                    <ion-icon name="checkmark-circle"></ion-icon>
-                    <ion-label>Verdadero</ion-label>
-                  </ion-segment-button>
-                  <ion-segment-button value="false">
-                    <ion-icon name="close-circle"></ion-icon>
-                    <ion-label>Falso</ion-label>
-                  </ion-segment-button>
-                </ion-segment>
-              </div>
-
-              <!-- Campo de fecha -->
-              <ion-datetime
-                *ngIf="column.type === 'DATE'"
-                [(ngModel)]="recordForm[column.name]"
-                presentation="date"
-                class="field-input">
-              </ion-datetime>
-
-              <!-- Campo de fecha y hora -->
-              <ion-datetime
-                *ngIf="column.type === 'TIMESTAMP'"
-                [(ngModel)]="recordForm[column.name]"
-                presentation="date-time"
-                class="field-input">
-              </ion-datetime>
-
-              <!-- Campo JSON -->
-              <ion-textarea
-                *ngIf="column.type === 'JSON'"
-                [(ngModel)]="recordForm[column.name]"
-                [placeholder]="getPlaceholder(column)"
-                rows="4"
-                class="field-input json-input">
-              </ion-textarea>
-
-              <!-- Campo UUID -->
-              <div *ngIf="column.type === 'UUID'" class="uuid-field">
-                <ion-input
-                  [(ngModel)]="recordForm[column.name]"
-                  [placeholder]="getPlaceholder(column)"
-                  class="field-input">
-                </ion-input>
-                <ion-button 
-                  fill="outline" 
-                  size="small"
-                  (click)="generateUUID(column.name)">
-                  <ion-icon name="refresh"></ion-icon>
-                  Generar
-                </ion-button>
-              </div>
-
-              <!-- Validación y ayuda -->
-              <div class="field-info">
-                <span 
-                  *ngIf="column.length" 
-                  class="field-hint">
-                  Máximo {{ column.length }} caracteres
-                </span>
-                <span 
-                  *ngIf="column.defaultValue" 
-                  class="field-hint">
-                  Por defecto: {{ column.defaultValue }}
-                </span>
-                <span 
-                  *ngIf="getFieldError(column.name)" 
-                  class="field-error">
-                  {{ getFieldError(column.name) }}
-                </span>
+        <div class="modal-body">
+          <h2>Activar Auditoría para Tabla</h2>
+          <p class="subtitle">Ingresa el nombre de la tabla para activar el sistema de auditoría automática. Esto creará los triggers necesarios para monitorear cambios.</p>
+          <form class="audit-form">
+            <div class="form-group">
+              <ion-label class="form-label">Nombre de la Tabla *</ion-label>
+              <ion-input [(ngModel)]="auditForm.tableName"  name="tableName" placeholder="usuarios" class="form-input" [class.error]="auditForm.tableName.trim() === '' && formTouched"></ion-input>
+              <div class="form-hint">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                <span>El nombre debe coincidir exactamente con el nombre de la tabla en la base de datos</span>
               </div>
             </div>
-          </div>
+          </form>
         </div>
-
-        <!-- Vista previa del SQL -->
-        <div class="sql-preview-section" *ngIf="showSQLPreview">
-          <h4>
-            <ion-icon name="code-slash"></ion-icon>
-            SQL que se ejecutará
-          </h4>
-          <div class="sql-code">
-            <pre>{{ generateDataSQL() }}</pre>
-          </div>
-          <ion-button 
-            size="small" 
-            fill="outline" 
-            (click)="copySQLToClipboard()">
-            <ion-icon name="copy" slot="start"></ion-icon>
-            Copiar SQL
+        <div class="modal-footer">
+          <ion-button fill="clear" class="btn-cancel" (click)="closeActivarAuditoriaModal()">Cancelar</ion-button>
+          <ion-button fill="clear" class="btn-clean" (click)="limpiarFormulario()">
+            <ion-icon name="refresh-outline"></ion-icon> Limpiar
+          </ion-button>
+          <ion-button class="btn-activate" (click)="crearAuditoriaPersonalizada()">
+            <ion-icon name="play-outline"></ion-icon> Activar Auditoría
           </ion-button>
         </div>
       </div>
-    </div>
-
-    <div class="modal-footer">
-      <div class="footer-actions-left">
-        <ion-button 
-          fill="outline" 
-          color="medium"
-          (click)="showSQLPreview = !showSQLPreview">
-          <ion-icon name="code-slash" slot="start"></ion-icon>
-          {{ showSQLPreview ? 'Ocultar' : 'Ver' }} SQL
-        </ion-button>
-        
-        <ion-button 
-          *ngIf="editingRecord"
-          fill="outline" 
-          color="danger"
-          (click)="deleteRecord()">
-          <ion-icon name="trash" slot="start"></ion-icon>
-          Eliminar
-        </ion-button>
+      <div class="modal-content processing" *ngIf="modalState === 'processing'">
+        <div class="modal-header">
+          <div class="icon-container">
+            <ion-icon name="shield-checkmark-outline" class="audit-icon"></ion-icon>
+          </div>
+          <ion-button fill="clear" class="close-btn" (click)="closeActivarAuditoriaModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+        <div class="modal-body">
+          <h2>Activar Auditoría para Tabla</h2>
+          <p class="subtitle">Ingresa el nombre de la tabla para activar el sistema de auditoría automática. Esto creará los triggers necesarios para monitorear cambios.</p>
+          <form class="audit-form">
+            <div class="form-group">
+              <ion-label class="form-label">Nombre de la Tabla *</ion-label>
+              <ion-input [value]="auditForm.tableName" [readonly]="true" class="form-input readonly"></ion-input>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <ion-button fill="clear" class="btn-cancel" (click)="closeActivarAuditoriaModal()">Cancelar</ion-button>
+          <ion-button class="btn-activating" [disabled]="true">
+            <ion-spinner name="crescent" class="spinner"></ion-spinner> Activando Auditoría...
+          </ion-button>
+        </div>
       </div>
-
-      <div class="btn-group">
-        <ion-button 
-          fill="outline" 
-          class="btn-cancel"
-          (click)="closeEditDataModal()">
-          Cancelar
-        </ion-button>
-        
-        <ion-button 
-          class="btn-save"
-          (click)="saveRecord()"
-          [disabled]="!isFormValid()">
-          <ion-icon name="save" slot="start"></ion-icon>
-          {{ editingRecord ? 'Actualizar' : 'Crear' }} Registro
-        </ion-button>
+      <div class="modal-content success" *ngIf="modalState === 'success'">
+        <div class="success-icon">
+          <ion-icon name="checkmark-circle" class="success-check"></ion-icon>
+        </div>
+        <div class="success-content">
+          <h2>¡Auditoría Activada Exitosamente!</h2>
+          <p>La auditoría ha sido activada para la tabla <strong>{{ auditForm.tableName }}</strong></p>
+          <div class="success-stats">
+            <div class="stat-item">
+              <ion-icon name="flash-outline" class="stat-icon"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-label">TRIGGERS EJECUTADOS</span>
+                <span class="stat-value">3</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <ion-icon name="pulse-outline" class="stat-icon"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-label">ESTADO</span>
+                <span class="stat-value">Activo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <ion-button class="btn-finalize" (click)="closeActivarAuditoriaModal()">
+            <ion-icon name="checkmark-outline"></ion-icon> Finalizar
+          </ion-button>
+        </div>
+      </div>
+      <div class="modal-content error" *ngIf="modalState === 'error'">
+        <div class="error-icon">
+          <ion-icon name="close-circle" class="error-x"></ion-icon>
+        </div>
+        <div class="error-content">
+          <h2>Error al Activar Auditoría</h2>
+          <p>No se pudo activar la auditoría para la tabla <strong>{{ auditForm.tableName }}</strong></p>
+          <div class="error-details">
+            <ion-icon name="warning-outline" class="warning-icon"></ion-icon>
+            <span>La tabla '{{ auditForm.tableName }}' no existe en la base de datos</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <ion-button fill="clear" class="btn-cancel" (click)="closeActivarAuditoriaModal()">Cerrar</ion-button>
+          <ion-button class="btn-retry" (click)="reintentar()">
+            <ion-icon name="refresh-outline"></ion-icon> Reintentar
+          </ion-button>
+        </div>
       </div>
     </div>
   </ng-template>
